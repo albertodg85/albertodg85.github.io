@@ -19,6 +19,9 @@
 </head>
 <body>
     <h1>Criptomonedas en Tiempo Real</h1>
+    <p id="last-updated"></p>
+    <h2>Recomendaciones de Inversión a Medio Plazo</h2>
+    <ul id="investment-recommendations"></ul>
     <table id="cryptocurrency-table">
         <thead>
             <tr>
@@ -30,6 +33,7 @@
                 <th>Predicción Semanal</th>
                 <th>Predicción Mensual</th>
                 <th>Predicción Año 2030</th>
+                <th>Recomendación</th>
             </tr>
         </thead>
         <tbody id="cryptocurrency-data">
@@ -37,30 +41,54 @@
         </tbody>
     </table>
     <script>
-        // Obteniendo datos de la API de Coinlore
-        fetch('https://api.coinlore.net/api/tickers/')
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById('cryptocurrency-data');
-                data.data.forEach(crypto => {
-                    const row = document.createElement('tr');
-                    const dailyPrediction = getPrediction(crypto, 'daily'); // Pseudocódigo para la predicción diaria
-                    const weeklyPrediction = getPrediction(crypto, 'weekly'); // Pseudocódigo para la predicción semanal
-                    const monthlyPrediction = getPrediction(crypto, 'monthly'); // Pseudocódigo para la predicción mensual
-                    const yearlyPrediction = getPrediction(crypto, '2030'); // Pseudocódigo para la predicción a 2030
-                    row.innerHTML = `
-                        <td>${crypto.name}</td>
-                        <td>${crypto.price_usd}</td>
-                        <td>${crypto.percent_change_24h}</td>
-                        <td>${crypto.market_cap_usd}</td>
-                        <td class="${dailyPrediction.class}">${dailyPrediction.symbol}</td>
-                        <td class="${weeklyPrediction.class}">${weeklyPrediction.symbol}</td>
-                        <td class="${monthlyPrediction.class}">${monthlyPrediction.symbol}</td>
-                        <td class="${yearlyPrediction.class}">${yearlyPrediction.symbol}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            }).catch(error => console.error('Error al obtener los datos:', error));
+        // Función para obtener y actualizar los datos
+        function updateData() {
+            // Obteniendo datos de la API de Coinlore
+            fetch('https://api.coinlore.net/api/tickers/')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('cryptocurrency-data');
+                    const investmentRecommendations = [];
+                    tableBody.innerHTML = ''; // Limpiar la tabla antes de actualizar
+                    data.data.forEach(crypto => {
+                        const dailyPrediction = getPrediction(crypto, 'daily'); 
+                        const weeklyPrediction = getPrediction(crypto, 'weekly');
+                        const monthlyPrediction = getPrediction(crypto, 'monthly'); 
+                        const yearlyPrediction = getPrediction(crypto, '2030');
+                        const recommendation = getRecommendation(dailyPrediction, weeklyPrediction, monthlyPrediction, yearlyPrediction);
+
+                        // Añadir criptomonedas a la lista de recomendaciones si tienen predicciones positivas
+                        if (recommendation === 'Comprar' && investmentRecommendations.length < 5) {
+                            investmentRecommendations.push(crypto);
+                        }
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${crypto.name}</td>
+                            <td>${crypto.price_usd}</td>
+                            <td>${crypto.percent_change_24h}</td>
+                            <td>${crypto.market_cap_usd}</td>
+                            <td class="${dailyPrediction.class}">${dailyPrediction.symbol}</td>
+                            <td class="${weeklyPrediction.class}">${weeklyPrediction.symbol}</td>
+                            <td class="${monthlyPrediction.class}">${monthlyPrediction.symbol}</td>
+                            <td class="${yearlyPrediction.class}">${yearlyPrediction.symbol}</td>
+                            <td>${recommendation}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Actualizar las recomendaciones de inversión
+                    const recommendationsList = document.getElementById('investment-recommendations');
+                    recommendationsList.innerHTML = '';
+                    investmentRecommendations.forEach(crypto => {
+                        recommendationsList.innerHTML += `<li>${crypto.name}: ${crypto.price_usd} USD</li>`;
+                    });
+
+                    // Actualizar la fecha y hora de la consulta
+                    const lastUpdated = document.getElementById('last-updated');
+                    lastUpdated.innerText = `Última actualización: ${new Date().toLocaleString()}`;
+                }).catch(error => console.error('Error al obtener los datos:', error));
+        }
 
         function getPrediction(crypto, interval) {
             // Pseudocódigo para determinar la predicción en diferentes intervalos
@@ -70,13 +98,13 @@
                     change = parseFloat(crypto.percent_change_24h);
                     break;
                 case 'weekly':
-                    change = parseFloat(crypto.percent_change_7d || 0); // Ajustar según la disponibilidad de datos
+                    change = parseFloat(crypto.percent_change_7d || 0); 
                     break;
                 case 'monthly':
-                    change = parseFloat(crypto.percent_change_30d || 0); // Ajustar según la disponibilidad de datos
+                    change = parseFloat(crypto.percent_change_30d || 0);
                     break;
                 case '2030':
-                    change = predictYear2030(crypto); // Pseudocódigo para predicción a largo plazo
+                    change = predictYear2030(crypto);
                     break;
                 default:
                     change = 0;
@@ -90,11 +118,26 @@
             }
         }
 
+        function getRecommendation(daily, weekly, monthly, yearly) {
+            // Pseudocódigo para determinar la recomendación
+            if (daily.class === 'up' && weekly.class === 'up' && monthly.class === 'up' && yearly.class === 'up') {
+                return 'Comprar';
+            } else if (daily.class === 'down' && weekly.class === 'down' && monthly.class === 'down' && yearly.class === 'down') {
+                return 'Vender';
+            } else {
+                return 'Mantener';
+            }
+        }
+
         function predictYear2030(crypto) {
             // Pseudocódigo para predicción a largo plazo (2030)
             // Aquí podrías usar un modelo de aprendizaje automático para obtener una predicción más precisa
             return Math.random() * 2 - 1; // Ejemplo de predicción aleatoria
         }
+
+        // Actualizar los datos cada minuto
+        setInterval(updateData, 60000);
+        updateData(); // Actualizar datos al cargar la página
     </script>
 </body>
 </html>
