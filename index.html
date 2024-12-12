@@ -32,7 +32,7 @@
         </tbody>
     </table>
     <script>
-        // Obteniendo datos de la API de CoinMarketCap
+        // Obteniendo datos de la API de Coinlore
         fetch('https://api.coinlore.net/api/tickers/')
             .then(response => response.json())
             .then(data => {
@@ -49,10 +49,6 @@
                         <td class="${prediction.class}">${prediction.symbol}</td>
                     `;
                     tableBody.appendChild(row);
-
-                    // Aquí puedes llamar a Copilot para generar análisis y predicción
-                    // Ejemplo: copilot.generateAnalysis(crypto.id);
-                    // Ejemplo: copilot.generatePrediction(crypto.id);
                 });
             }).catch(error => console.error('Error al obtener los datos:', error));
 
