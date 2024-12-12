@@ -1,37 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Criptomonedas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .crypto-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .crypto-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: calc(33.333% - 40px);
+            box-sizing: border-box;
+        }
+        .crypto-card h3 {
+            margin-top: 0;
+        }
+        .news-container, .market-news-container {
+            margin-top: 40px;
+        }
+        .prediction-up {
+            color: green;
+        }
+        .prediction-stable {
+            color: blue;
+        }
+        .prediction-down {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-  <h1>Lista de Criptomonedas</h1>
-  <ul id="crypto-list"></ul>
+    <h1>Crypto Dashboard</h1>
+    <h2>Recomendación de Inversión a Medio Plazo</h2>
+    <ul>
+        <li><strong>Cardano (ADA)</strong>: Invertir 40€, predicción alcista.</li>
+        <li><strong>Solana (SOL)</strong>: Invertir 30€, predicción alcista.</li>
+        <li><strong>Ethereum (ETH)</strong>: Invertir 20€, predicción estable con tendencia al alza.</li>
+        <li><strong>Dogecoin (DOGE)</strong>: Invertir 10€, predicción alcista.</li>
+    </ul>
+    <div class="crypto-container" id="cryptoContainer"></div>
+    <div class="news-container" id="newsContainer">
+        <h2>Últimas Noticias sobre Criptomonedas</h2>
+        <div id="newsContent"></div>
+    </div>
+    <div class="market-news-container" id="marketNewsContainer">
+        <h2>Noticias del Mercado de Criptomonedas</h2>
+        <div id="marketNewsContent"></div>
+    </div>
 
-  <script>
-    const cryptoList = document.getElementById('crypto-list');
+    <script>
+        const apiKey = '1261d646-613a-494e-867f-93f932991dcd';
+        
+        // Fetch cryptocurrency data
+        async function fetchCryptoData() {
+            try {
+                const response = await axios.get(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest`, {
+                    headers: { 'X-CMC_PRO_API_KEY': apiKey },
+                    params: { start: 1, limit: 100, convert: 'USD' }
+                });
+                const cryptos = response.data.data;
+                displayCryptoData(cryptos);
+            } catch (error) {
+                console.error('Error fetching crypto data:', error);
+            }
+        }
 
-    async function fetchCryptos() {
-      try {
-        const response = await fetch('/api/cryptos'); // Llama al backend
-        const cryptos = await response.json();
+        // Display cryptocurrency data
+        function displayCryptoData(cryptos) {
+            const container = document.getElementById('cryptoContainer');
+            cryptos.forEach(crypto => {
+                const card = document.createElement('div');
+                card.className = 'crypto-card';
+                const prediction = getPrediction(crypto.id); // Mock prediction function
+                const recommendation = getRecommendation(prediction); // Mock recommendation function
+                card.innerHTML = `
+                    <h3>${crypto.name} (${crypto.symbol})</h3>
+                    <p>Precio: $${crypto.quote.USD.price.toFixed(2)}</p>
+                    <p>Cap. de Mercado: $${(crypto.quote.USD.market_cap / 1e9).toFixed(2)} Billones</p>
+                    <p>Volumen (24h): $${(crypto.quote.USD.volume_24h / 1e6).toFixed(2)} Millones</p>
+                    <p>Cambio (24h): ${crypto.quote.USD.percent_change_24h.toFixed(2)}%</p>
+                    <p>Análisis y Predicciones IA:</p>
+                    <table>
+                        <tr>
+                            <td>Día:</td>
+                            <td class="${prediction.day.class}">${prediction.day.icon}</td>
+                        </tr>
+                        <tr>
+                            <td>Semana:</td>
+                            <td class="${prediction.week.class}">${prediction.week.icon}</td>
+                        </tr>
+                        <tr>
+                            <td>Mes:</td>
+                            <td class="${prediction.month.class}">${prediction.month.icon}</td>
+                        </tr>
+                        <tr>
+                            <td>Año:</td>
+                            <td class="${prediction.year.class}">${prediction.year.icon}</td>
+                        </tr>
+                    </table>
+                    <p>Recomendación: ${recommendation}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-        cryptos.forEach(crypto => {
-          const li = document.createElement('li');
-          li.innerHTML = `
-            <h2>${crypto.name} (${crypto.symbol})</h2>
-            <p>Precio: $${crypto.quote.USD.price.toFixed(2)}</p>
-            <p>Market Cap: $${crypto.quote.USD.market_cap.toFixed(2)}</p>
-            // Agrega otros datos que necesites
-          `;
-          cryptoList.appendChild(li);
-        });
-      } catch (error) {
-        console.error('Error:', error);
-        cryptoList.innerHTML = '<li>Error al cargar los datos.</li>';
-      }
-    }
+        // Mock prediction function
+        function getPrediction(id) {
+            const random = Math.random();
+            return {
+                day: random > 0.66 ? { class: 'prediction-up', icon: '⬆️' } : random > 0.33 ? { class: 'prediction-stable', icon: '➖' } : { class: 'prediction-down', icon: '⬇️' },
+                week: random > 0.66 ? { class: 'prediction-up', icon: '⬆️' } : random > 0.33 ? { class: 'prediction-stable', icon: '➖' } : { class: 'prediction-down', icon: '⬇️' },
+                month: random > 0.66 ? { class: 'prediction-up', icon: '⬆️' } : random > 0.33 ? { class: 'prediction-stable', icon: '➖' } : { class: 'prediction-down', icon: '⬇️' },
+                year: random > 0.66 ? { class: 'prediction-up', icon: '⬆️' } : random > 0.33 ? { class: 'prediction-stable', icon: '➖' } : { class: 'prediction-down', icon: '⬇️' }
+            };
+        }
 
-    fetchCryptos();
-  </script>
+        // Mock recommendation function
+        function getRecommendation(prediction) {
+            if (prediction.day.class === 'prediction-up' && prediction.week.class === 'prediction-up' && prediction.month.class === 'prediction-up') {
+                return 'Comprar';
+            } else if (prediction.day.class === 'prediction-down' && prediction.week.class === 'prediction-down' && prediction.month.class === 'prediction-down') {
+                return 'Vender';
+            } else {
+                return 'Mantener';
+            }
+        }
+
+        // Fetch latest news
+        async function fetchLatestNews() {
+            try {
+                const response = await axios.get('https://newsapi.org/v2/everything', {
+                    params: {
+                        q: 'cryptocurrency',
+                        sortBy: 'publishedAt',
+                        apiKey: 'your_newsapi_key_here'
+                    }
+                });
+                const news = response.data.articles;
+                displayLatestNews(news);
+            } catch (error) {
+                console.error('Error fetching news:', error);
+            }
+        }
+
+        // Display latest news
+        function displayLatestNews(news) {
+            const container = document.getElementById('newsContent');
+            news.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.innerHTML = `
+                    <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                    <p>${article.description}</p>
+                `;
+                container.appendChild(newsItem);
+            });
+        }
+
+        // Fetch market news
+        async function fetchMarketNews() {
+            try {
+                const response = await axios.get('https://newsapi.org/v2/everything', {
+                    params: {
+                        q: 'crypto market',
+                        sortBy: 'publishedAt',
+                        apiKey: 'your_newsapi_key_here'
+                    }
+                });
+                const news = response.data.articles;
+                displayMarketNews(news);
+            } catch (error) {
+                console.error('Error fetching market news:', error);
+            }
+        }
+
+        // Display market news
+        function displayMarketNews(news) {
+            const container = document.getElementById('marketNewsContent');
+            news.forEach(article => {
+                const newsItem = document.createElement('div');
+                newsItem.innerHTML = `
+                    <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                    <p>${article.description}</p>
+                `;
+                container.appendChild(newsItem);
+            });
+        }
+
+        // Initialize
+        fetchCryptoData();
+        fetchLatestNews();
+        fetchMarketNews();
+    </script>
 </body>
 </html>
