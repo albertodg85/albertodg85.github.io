@@ -12,6 +12,9 @@
         .up { color: green; }
         .down { color: red; }
         .neutral { color: blue; }
+        .arrow-up::before { content: '⬆️'; }
+        .arrow-down::before { content: '⬇️'; }
+        .arrow-right::before { content: '➡️'; }
     </style>
 </head>
 <body>
@@ -23,8 +26,10 @@
                 <th>Precio</th>
                 <th>% Variación 24h</th>
                 <th>Capitalización de Mercado</th>
-                <th>Análisis de Evolución</th>
-                <th>Predicción</th>
+                <th>Predicción Diario</th>
+                <th>Predicción Semanal</th>
+                <th>Predicción Mensual</th>
+                <th>Predicción Año 2030</th>
             </tr>
         </thead>
         <tbody id="cryptocurrency-data">
@@ -39,29 +44,56 @@
                 const tableBody = document.getElementById('cryptocurrency-data');
                 data.data.forEach(crypto => {
                     const row = document.createElement('tr');
-                    const prediction = getPrediction(crypto); // Pseudocódigo para la predicción
+                    const dailyPrediction = getPrediction(crypto, 'daily'); // Pseudocódigo para la predicción diaria
+                    const weeklyPrediction = getPrediction(crypto, 'weekly'); // Pseudocódigo para la predicción semanal
+                    const monthlyPrediction = getPrediction(crypto, 'monthly'); // Pseudocódigo para la predicción mensual
+                    const yearlyPrediction = getPrediction(crypto, '2030'); // Pseudocódigo para la predicción a 2030
                     row.innerHTML = `
                         <td>${crypto.name}</td>
                         <td>${crypto.price_usd}</td>
                         <td>${crypto.percent_change_24h}</td>
                         <td>${crypto.market_cap_usd}</td>
-                        <td id="evolution-analysis-${crypto.id}">Análisis pendiente</td>
-                        <td class="${prediction.class}">${prediction.symbol}</td>
+                        <td class="${dailyPrediction.class}">${dailyPrediction.symbol}</td>
+                        <td class="${weeklyPrediction.class}">${weeklyPrediction.symbol}</td>
+                        <td class="${monthlyPrediction.class}">${monthlyPrediction.symbol}</td>
+                        <td class="${yearlyPrediction.class}">${yearlyPrediction.symbol}</td>
                     `;
                     tableBody.appendChild(row);
                 });
             }).catch(error => console.error('Error al obtener los datos:', error));
 
-        function getPrediction(crypto) {
-            // Pseudocódigo para determinar la predicción
-            const change = parseFloat(crypto.percent_change_24h);
-            if (change > 1) {
-                return { class: 'up', symbol: '↑' };
-            } else if (change < -1) {
-                return { class: 'down', symbol: '↓' };
-            } else {
-                return { class: 'neutral', symbol: '→' };
+        function getPrediction(crypto, interval) {
+            // Pseudocódigo para determinar la predicción en diferentes intervalos
+            let change;
+            switch (interval) {
+                case 'daily':
+                    change = parseFloat(crypto.percent_change_24h);
+                    break;
+                case 'weekly':
+                    change = parseFloat(crypto.percent_change_7d || 0); // Ajustar según la disponibilidad de datos
+                    break;
+                case 'monthly':
+                    change = parseFloat(crypto.percent_change_30d || 0); // Ajustar según la disponibilidad de datos
+                    break;
+                case '2030':
+                    change = predictYear2030(crypto); // Pseudocódigo para predicción a largo plazo
+                    break;
+                default:
+                    change = 0;
             }
+            if (change > 1) {
+                return { class: 'up arrow-up', symbol: '' };
+            } else if (change < -1) {
+                return { class: 'down arrow-down', symbol: '' };
+            } else {
+                return { class: 'neutral arrow-right', symbol: '' };
+            }
+        }
+
+        function predictYear2030(crypto) {
+            // Pseudocódigo para predicción a largo plazo (2030)
+            // Aquí podrías usar un modelo de aprendizaje automático para obtener una predicción más precisa
+            return Math.random() * 2 - 1; // Ejemplo de predicción aleatoria
         }
     </script>
 </body>
