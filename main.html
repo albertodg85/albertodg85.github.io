@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Criptomonedas</title>
+</head>
+<body>
+  <h1>Lista de Criptomonedas</h1>
+  <ul id="crypto-list"></ul>
+
+  <script>
+    const cryptoList = document.getElementById('crypto-list');
+
+    async function fetchCryptos() {
+      try {
+        const response = await fetch('/api/cryptos'); // Llama al backend
+        const cryptos = await response.json();
+
+        cryptos.forEach(crypto => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <h2>${crypto.name} (${crypto.symbol})</h2>
+            <p>Precio: $${crypto.quote.USD.price.toFixed(2)}</p>
+            <p>Market Cap: $${crypto.quote.USD.market_cap.toFixed(2)}</p>
+            // Agrega otros datos que necesites
+          `;
+          cryptoList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        cryptoList.innerHTML = '<li>Error al cargar los datos.</li>';
+      }
+    }
+
+    fetchCryptos();
+  </script>
+</body>
+</html>
