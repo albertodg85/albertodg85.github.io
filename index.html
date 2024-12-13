@@ -165,8 +165,8 @@
 
             allData.forEach(coin => {
                 const change = type === 'short' ? coin.price_change_percentage_24h
-                            : type === 'medium' ? coin.price_change_percentage_7d
-                            : coin.price_change_percentage_30d;
+                            : type === 'medium' ? coin.price_change_percentage_6m
+                            : coin.price_change_percentage_1y;
                 if (change > 0 && recommendations.length < 5) {
                     recommendations.push(coin);
                 }
