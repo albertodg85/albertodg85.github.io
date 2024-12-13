@@ -30,6 +30,7 @@
         th, td {
             padding: 10px;
             text-align: center;
+            cursor: pointer;
         }
         th {
             background-color: #f2f2f2;
@@ -53,7 +54,23 @@
 <body>
     <h1>Cryptocurrency Data</h1>
     <p>Last updated: <span id="last-updated">Never</span></p>
-    
+
+    <!-- Investment Recommender -->
+    <div class="investment-recommender">
+        <label for="investment-amount">Investment Amount (USD): </label>
+        <input type="number" id="investment-amount" min="1" required>
+        <button onclick="recommendInvestment()">Recommend Investment</button>
+    </div>
+
+    <div id="recommendations">
+        <h2>Short Term Investment</h2>
+        <ul id="short-term-recommendations"></ul>
+        <h2>Medium Term Investment</h2>
+        <ul id="medium-term-recommendations"></ul>
+        <h2>Long Term Investment</h2>
+        <ul id="long-term-recommendations"></ul>
+    </div>
+
     <div class="filter-controls">
         <label for="crypto-filter">Filter by Cryptocurrency:</label>
         <select id="crypto-filter">
@@ -64,20 +81,20 @@
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Symbol</th>
-                <th>Price</th>
-                <th>Market Cap</th>
-                <th>24h Volume</th>
-                <th>24h Change</th>
-                <th>Prediction 1h</th>
-                <th>Prediction 1d</th>
-                <th>Prediction 1w</th>
-                <th>Prediction 1m</th>
-                <th>Prediction 1y</th>
-                <th>Short Term</th>
-                <th>Medium Term</th>
-                <th>Long Term</th>
+                <th onclick="sortTable(0)">Name</th>
+                <th onclick="sortTable(1)">Symbol</th>
+                <th onclick="sortTable(2)">Price</th>
+                <th onclick="sortTable(3)">Market Cap</th>
+                <th onclick="sortTable(4)">24h Volume</th>
+                <th onclick="sortTable(5)">24h Change</th>
+                <th onclick="sortTable(6)">Prediction 1h</th>
+                <th onclick="sortTable(7)">Prediction 1d</th>
+                <th onclick="sortTable(8)">Prediction 1w</th>
+                <th onclick="sortTable(9)">Prediction 1m</th>
+                <th onclick="sortTable(10)">Prediction 1y</th>
+                <th onclick="sortTable(11)">Short Term</th>
+                <th onclick="sortTable(12)">Medium Term</th>
+                <th onclick="sortTable(13)">Long Term</th>
             </tr>
         </thead>
         <tbody id="crypto-data">
@@ -192,6 +209,73 @@
                 updateTable(filteredData);
             }
         });
+
+        function sortTable(columnIndex) {
+            const table = document.querySelector("table");
+            const rows = Array.from(table.rows).slice(1);
+            const isAscending = table.rows[0].cells[columnIndex].classList.toggle("asc");
+
+            rows.sort((row1, row2) => {
+                const cell1 = row1.cells[columnIndex].innerText;
+                const cell2 = row2.cells[columnIndex].innerText;
+                const a = isNaN(cell1) ? cell1 : parseFloat(cell1.replace(/[^0-9.-]+/g, ""));
+                const b = isNaN(cell2) ? cell2 : parseFloat(cell2.replace(/[^0-9.-]+/g, ""));
+                return (a > b ? 1 : -1) * (isAscending ? 1 : -1);
+            });
+
+            rows.forEach(row => table.appendChild(row));
+        }
+
+        function recommendInvestment() {
+            const amount = parseFloat(document.getElementById('investment-amount').value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid investment amount');
+                return;
+            }
+
+            const shortTerm = [];
+            const mediumTerm = [];
+            const longTerm = [];
+
+            allData.forEach(coin => {
+                const shortTermChange = parseFloat(coin.price_change_percentage_24h);
+                const mediumTermChange = parseFloat(coin.price_change_percentage_7d);
+                const longTermChange = parseFloat(coin.price_change_percentage_30d);
+
+                if (shortTermChange > 0 && shortTerm.length < 5) {
+                    shortTerm.push(coin);
+                }
+                if (mediumTermChange > 0 && mediumTerm.length < 5) {
+                    mediumTerm.push(coin);
+                }
+                if (longTermChange > 0 && longTerm.length < 5) {
+                    longTerm.push(coin);
+                }
+            });
+
+            const shortTermList = document.getElementById('short-term-recommendations');
+            const mediumTermList = document.getElementById('medium-term-recommendations');
+            const longTermList = document.getElementById('long-term-recommendations');
+
+            shortTermList.innerHTML = '';
+            mediumTermList.innerHTML = '';
+            longTermList.innerHTML = '';
+
+            shortTerm.forEach(coin => {
+                const investment = (amount / 3).toFixed(2);
+                shortTermList.innerHTML += `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investment}</li>`;
+            });
+
+            mediumTerm.forEach(coin => {
+                const investment = (amount / 3).toFixed(2);
+                mediumTermList.innerHTML += `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investment}</li>`;
+            });
+
+            longTerm.forEach(coin => {
+                const investment = (amount / 3).toFixed(2);
+                longTermList.innerHTML += `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investment}</li>`;
+            });
+        }
 
         // Fetch data initially and then update every minute
         fetchCryptoData();
