@@ -10,6 +10,9 @@
             margin: 0;
             padding: 20px;
             background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         h1 {
             text-align: center;
@@ -21,8 +24,11 @@
         }
         table {
             width: 100%;
+            max-width: 1000px;
             border-collapse: collapse;
             margin-top: 20px;
+            overflow-x: auto;
+            display: block;
         }
         table, th, td {
             border: 1px solid #ddd;
@@ -54,6 +60,27 @@
         }
         .trend-down {
             color: red;
+        }
+        input, select, button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 1em;
+        }
+        #investment-recommender {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        #investment-recommendations {
+            list-style: none;
+            padding: 0;
+        }
+        #investment-recommendations li {
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -123,14 +150,10 @@
             }
         }
 
-        async function fetchNewsImpact() {
-            // Placeholder for actual implementation
-            return [];
-        }
-
-        async function fetchWebAnalysis() {
-            // Placeholder for actual implementation
-            return [];
+        async function fetchWebAnalysis(coinId) {
+            const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=max`);
+            const data = await response.json();
+            return data;
         }
 
         function predictPrice(currentPrice, growthRate, periods) {
@@ -147,13 +170,19 @@
             }
         }
 
-        function analyzeTrend(coin) {
-            // Placeholder for actual candlestick chart analysis
-            const trend = Math.random() > 0.5 ? 'up' : 'down';
-            return trend;
+        async function calculatePrediction(coin) {
+            const webAnalysis = await fetchWebAnalysis(coin.id);
+
+            let prediction1y = coin.current_price;
+            if (webAnalysis) {
+                const trends = webAnalysis.prices.map(([timestamp, price]) => price);
+                const trend = trends.reduce((a, b) => a + b, 0) / trends.length;
+                prediction1y = trend;
+            }
+            return prediction1y;
         }
 
-        function recommendInvestment() {
+        async function recommendInvestment() {
             const amount = parseFloat(document.getElementById('investment-amount').value);
             const type = document.getElementById('investment-type').value;
             if (isNaN(amount) || amount <= 0) {
@@ -163,14 +192,14 @@
 
             const recommendations = [];
 
-            allData.forEach(coin => {
+            for (const coin of allData) {
                 const change = type === 'short' ? coin.price_change_percentage_24h
                             : type === 'medium' ? coin.price_change_percentage_30d
-                            : coin.price_change_percentage_1y;
+                            : await calculatePrediction(coin);
                 if (change > 0 && recommendations.length < 5) {
                     recommendations.push(coin);
                 }
-            });
+            }
 
             const investmentAmounts = [
                 (amount * 0.4).toFixed(2),
@@ -184,16 +213,16 @@
             investmentList.innerHTML = recommendations.map((coin, index) => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentAmounts[index]}</li>`).join('');
         }
 
-        function updateTable(data) {
+        async function updateTable(data) {
             const tableBody = document.getElementById('crypto-data');
             tableBody.innerHTML = ''; // Clear existing data
-            data.forEach(coin => {
+            for (const coin of data) {
                 const growthRate = coin.price_change_percentage_24h / 100 / 24;
                 const prediction1h = predictPrice(coin.current_price, growthRate, 1);
                 const prediction1d = predictPrice(coin.current_price, growthRate, 24);
                 const prediction1w = predictPrice(coin.current_price, growthRate, 24 * 7);
                 const prediction1m = predictPrice(coin.current_price, growthRate, 24 * 30);
-                const prediction1y = predictPrice(coin.current_price, growthRate, 24 * 365);
+                const prediction1y = await calculatePrediction(coin);
                 
                 const shortTermChange = prediction1d - coin.current_price;
                 const mediumTermChange = prediction1w - coin.current_price;
@@ -231,7 +260,7 @@
                     <td class="${trendClass}">${trendIcon}</td>
                 `;
                 tableBody.appendChild(row);
-            });
+            }
         }
 
         function updateDropdown(data) {
