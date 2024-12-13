@@ -49,15 +49,6 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        .login-form {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .login-form input {
-            margin: 5px;
-        }
         .trend-up {
             color: green;
         }
@@ -67,58 +58,39 @@
     </style>
 </head>
 <body>
-    <div class="login-form" id="login-form">
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
+    <h1>Cryptocurrency Data</h1>
+    <p>Last updated: <span id="last-updated">Never</span></p>
+
+    <div class="filter-controls">
+        <label for="crypto-filter">Filter by Cryptocurrency:</label>
+        <select id="crypto-filter">
+            <option value="all">All</option>
+        </select>
     </div>
     
-    <div id="content" style="display:none;">
-        <h1>Cryptocurrency Data</h1>
-        <p>Last updated: <span id="last-updated">Never</span></p>
-
-        <div class="filter-controls">
-            <label for="crypto-filter">Filter by Cryptocurrency:</label>
-            <select id="crypto-filter">
-                <option value="all">All</option>
-            </select>
-        </div>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th onclick="sortTable(0)">Name</th>
-                    <th onclick="sortTable(1)">Symbol</th>
-                    <th onclick="sortTable(2)">Price</th>
-                    <th onclick="sortTable(3)">Market Cap</th>
-                    <th onclick="sortTable(4)">24h Volume</th>
-                    <th onclick="sortTable(5)">24h Change</th>
-                    <th onclick="sortTable(6)">Prediction 1h</th>
-                    <th onclick="sortTable(7)">Prediction 1d</th>
-                    <th onclick="sortTable(8)">Prediction 1w</th>
-                    <th onclick="sortTable(9)">Prediction 1m</th>
-                    <th onclick="sortTable(10)">Prediction 1y</th>
-                    <th onclick="sortTable(11)">Tendencia</th>
-                </tr>
-            </thead>
-            <tbody id="crypto-data">
-                <!-- Data will be inserted here -->
-            </tbody>
-        </table>
-    </div>
+    <table>
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Name</th>
+                <th onclick="sortTable(1)">Symbol</th>
+                <th onclick="sortTable(2)">Price</th>
+                <th onclick="sortTable(3)">Market Cap</th>
+                <th onclick="sortTable(4)">24h Volume</th>
+                <th onclick="sortTable(5)">24h Change</th>
+                <th onclick="sortTable(6)">Prediction 1h</th>
+                <th onclick="sortTable(7)">Prediction 1d</th>
+                <th onclick="sortTable(8)">Prediction 1w</th>
+                <th onclick="sortTable(9)">Prediction 1m</th>
+                <th onclick="sortTable(10)">Prediction 1y</th>
+                <th onclick="sortTable(11)">Tendencia</th>
+            </tr>
+        </thead>
+        <tbody id="crypto-data">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
 
     <script>
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            if (username === "crypto" && password === "Crypto1234") {
-                document.getElementById("login-form").style.display = "none";
-                document.getElementById("content").style.display = "block";
-            } else {
-                alert("Invalid username or password");
-            }
-        }
-
         let allData = [];
 
         async function fetchCryptoData() {
