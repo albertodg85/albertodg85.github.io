@@ -202,6 +202,12 @@
                 const trendClass = trend === 'up' ? 'trend-up' : 'trend-down';
                 const trendIcon = trend === 'up' ? '⬆️' : '⬇️';
 
+                const recommendation1h = getRecommendation(prediction1h - coin.current_price);
+                const recommendation1d = getRecommendation(prediction1d - coin.current_price);
+                const recommendation1w = getRecommendation(prediction1w - coin.current_price);
+                const recommendation1m = getRecommendation(prediction1m - coin.current_price);
+                const recommendation1y = getRecommendation(prediction1y - coin.current_price);
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${coin.name}</td>
@@ -210,11 +216,11 @@
                     <td class="market-cap">$${coin.market_cap.toLocaleString()}</td>
                     <td class="volume">$${coin.total_volume.toLocaleString()}</td>
                     <td class="${coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}">${coin.price_change_percentage_24h.toFixed(2)}%</td>
-                    <td class="prediction-1h ${changeClass1h}">$${prediction1h.toFixed(2)}</td>
-                    <td class="prediction-1d ${changeClass1d}">$${prediction1d.toFixed(2)}</td>
-                    <td class="prediction-1w ${changeClass1w}">$${prediction1w.toFixed(2)}</td>
-                    <td class="prediction-1m ${changeClass1m}">$${prediction1m.toFixed(2)}</td>
-                    <td class="prediction-1y ${changeClass1y}">$${prediction1y.toFixed(2)}</td>
+                    <td class="prediction-1h ${changeClass1h}">$${prediction1h.toFixed(2)} (${recommendation1h})</td>
+                    <td class="prediction-1d ${changeClass1d}">$${prediction1d.toFixed(2)} (${recommendation1d})</td>
+                    <td class="prediction-1w ${changeClass1w}">$${prediction1w.toFixed(2)} (${recommendation1w})</td>
+                    <td class="prediction-1m ${changeClass1m}">$${prediction1m.toFixed(2)} (${recommendation1m})</td>
+                    <td class="prediction-1y ${changeClass1y}">$${prediction1y.toFixed(2)} (${recommendation1y})</td>
                     <td class="${trendClass}">${trendIcon}</td>
                 `;
                 tableBody.appendChild(row);
