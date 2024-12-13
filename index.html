@@ -20,6 +20,14 @@
 <body>
     <h1>Criptomonedas en Tiempo Real</h1>
     <p id="last-updated"></p>
+    <h2>Recomendador de Compra de Criptomonedas</h2>
+    <form id="investment-form">
+        <label for="investment-amount">Cantidad a Invertir (USD): </label>
+        <input type="number" id="investment-amount" name="investment-amount" min="1" required>
+        <button type="submit">Calcular Distribución</button>
+    </form>
+    <h3>Distribución de la Inversión</h3>
+    <ul id="investment-distribution"></ul>
     <h2>Recomendaciones de Inversión a Medio Plazo</h2>
     <ul id="investment-recommendations"></ul>
     <table id="cryptocurrency-table">
@@ -41,6 +49,23 @@
         </tbody>
     </table>
     <script>
+        document.getElementById('investment-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const investmentAmount = parseFloat(document.getElementById('investment-amount').value);
+            const distributionList = document.getElementById('investment-distribution');
+            distributionList.innerHTML = '';
+
+            const recommendationsList = document.getElementById('investment-recommendations');
+            const recommendedCryptos = recommendationsList.querySelectorAll('li');
+
+            const amountPerCrypto = investmentAmount / recommendedCryptos.length;
+
+            recommendedCryptos.forEach(crypto => {
+                const cryptoName = crypto.textContent.split(':')[0];
+                distributionList.innerHTML += `<li>${cryptoName}: $${amountPerCrypto.toFixed(2)} USD</li>`;
+            });
+        });
+
         // Función para obtener y actualizar los datos
         function updateData() {
             // Obteniendo datos de la API de Coinlore
