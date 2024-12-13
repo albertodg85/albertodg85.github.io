@@ -58,6 +58,12 @@
         .login-form input {
             margin: 5px;
         }
+        .trend-up {
+            color: green;
+        }
+        .trend-down {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +110,7 @@
                     <th onclick="sortTable(8)">Prediction 1w</th>
                     <th onclick="sortTable(9)">Prediction 1m</th>
                     <th onclick="sortTable(10)">Prediction 1y</th>
+                    <th onclick="sortTable(11)">Tendencia</th>
                 </tr>
             </thead>
             <tbody id="crypto-data">
@@ -143,15 +150,11 @@
         }
 
         async function fetchNewsImpact() {
-            // Assuming a function fetchNewsImpact exists to fetch news impact data.
-            // Replace with actual implementation.
-            return []; // Placeholder
+            return []; // Placeholder for actual implementation
         }
 
         async function fetchWebAnalysis() {
-            // Assuming a function fetchWebAnalysis exists to fetch web analysis data.
-            // Replace with actual implementation.
-            return []; // Placeholder
+            return []; // Placeholder for actual implementation
         }
 
         function predictPrice(currentPrice, growthRate, periods) {
@@ -168,11 +171,17 @@
             }
         }
 
+        function analyzeTrend(coin) {
+            // Placeholder for actual candlestick chart analysis
+            const trend = Math.random() > 0.5 ? 'up' : 'down';
+            return trend;
+        }
+
         function updateTable(data) {
             const tableBody = document.getElementById('crypto-data');
             tableBody.innerHTML = ''; // Clear existing data
             data.forEach(coin => {
-                const growthRate = coin.price_change_percentage_24h / 100 / 24; // Approximate hourly growth rate
+                const growthRate = coin.price_change_percentage_24h / 100 / 24;
                 const prediction1h = predictPrice(coin.current_price, growthRate, 1);
                 const prediction1d = predictPrice(coin.current_price, growthRate, 24);
                 const prediction1w = predictPrice(coin.current_price, growthRate, 24 * 7);
@@ -189,6 +198,10 @@
                 const changeClass1m = prediction1m >= coin.current_price ? 'positive' : 'negative';
                 const changeClass1y = prediction1y >= coin.current_price ? 'positive' : 'negative';
 
+                const trend = analyzeTrend(coin);
+                const trendClass = trend === 'up' ? 'trend-up' : 'trend-down';
+                const trendIcon = trend === 'up' ? '⬆️' : '⬇️';
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${coin.name}</td>
@@ -202,6 +215,7 @@
                     <td class="prediction-1w ${changeClass1w}">$${prediction1w.toFixed(2)}</td>
                     <td class="prediction-1m ${changeClass1m}">$${prediction1m.toFixed(2)}</td>
                     <td class="prediction-1y ${changeClass1y}">$${prediction1y.toFixed(2)}</td>
+                    <td class="${trendClass}">${trendIcon}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -257,33 +271,45 @@
 
             const newsImpact = await fetchNewsImpact();
             const webAnalysis = await fetchWebAnalysis();
-            const recommendations = { shortTerm: [], mediumTerm: [], longTerm: [] };
+            const recommendations = [];
 
             allData.forEach(coin => {
                 const shortTermChange = parseFloat(coin.price_change_percentage_24h);
-                const mediumTermChange = parseFloat(coin.price_change_percentage_7d);
-                const longTermChange = parseFloat(coin.price_change_percentage_30d);
-
-                if (shortTermChange > 0 && recommendations.shortTerm.length < 5) {
-                    recommendations.shortTerm.push(coin);
-                }
-                if (mediumTermChange > 0 && recommendations.mediumTerm.length < 5) {
-                    recommendations.mediumTerm.push(coin);
-                }
-                if (longTermChange > 0 && recommendations.longTerm.length < 5) {
-                    recommendations.longTerm.push(coin);
+                if (shortTermChange > 0 && recommendations.length < 5) {
+                    recommendations.push(coin);
                 }
             });
 
-            const investmentPerCoin = (amount / 5).toFixed(2);
+            if (recommendations.length < 5) {
+                allData.forEach(coin => {
+                    const mediumTermChange = parseFloat(coin.price_change_percentage_7d);
+                    if (mediumTermChange > 0 && recommendations.length < 5) {
+                        recommendations.push(coin);
+                    }
+                });
+            }
+
+            if (recommendations.length < 5) {
+                allData.forEach(coin => {
+                    const longTermChange = parseFloat(coin.price_change_percentage_30d);
+                    if (longTermChange > 0 && recommendations.length < 5) {
+                        recommendations.push(coin);
+                    }
+                });
+            }
+
+            const investmentAmounts = [
+                (amount * 0.4).toFixed(2),
+                (amount * 0.2).toFixed(2),
+                (amount * 0.2).toFixed(2),
+                (amount * 0.1).toFixed(2),
+                (amount * 0.1).toFixed(2)
+            ];
 
             const investmentList = document.getElementById('investment-recommendations');
-            investmentList.innerHTML = recommendations.shortTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
-            investmentList.innerHTML += recommendations.mediumTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
-            investmentList.innerHTML += recommendations.longTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
+            investmentList.innerHTML = recommendations.map((coin, index) => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentAmounts[index]}</li>`).join('');
         }
 
-        // Fetch data initially and then update every minute
         fetchCryptoData();
         setInterval(fetchCryptoData, 60000);
     </script>
