@@ -109,7 +109,7 @@
 
         async function fetchCryptoData() {
             try {
-                const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false');
+                const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d,30d,1y');
                 if (!response.ok) {
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
@@ -165,7 +165,7 @@
 
             allData.forEach(coin => {
                 const change = type === 'short' ? coin.price_change_percentage_24h
-                            : type === 'medium' ? coin.price_change_percentage_6m
+                            : type === 'medium' ? coin.price_change_percentage_30d
                             : coin.price_change_percentage_1y;
                 if (change > 0 && recommendations.length < 5) {
                     recommendations.push(coin);
