@@ -233,21 +233,21 @@
                 return;
             }
 
-            const recommandations = { shortTerm: [], mediumTerm: [], longTerm: [] };
+            const recommendations = { shortTerm: [], mediumTerm: [], longTerm: [] };
 
             allData.forEach(coin => {
                 const shortTermChange = parseFloat(coin.price_change_percentage_24h);
                 const mediumTermChange = parseFloat(coin.price_change_percentage_7d);
                 const longTermChange = parseFloat(coin.price_change_percentage_30d);
 
-                if (shortTermChange > 0 && recommandations.shortTerm.length < 5) {
-                    recommandations.shortTerm.push(coin);
+                if (shortTermChange > 0 && recommendations.shortTerm.length < 5) {
+                    recommendations.shortTerm.push(coin);
                 }
-                if (mediumTermChange > 0 && recommandations.mediumTerm.length < 5) {
-                    recommandations.mediumTerm.push(coin);
+                if (mediumTermChange > 0 && recommendations.mediumTerm.length < 5) {
+                    recommendations.mediumTerm.push(coin);
                 }
-                if (longTermChange > 0 && recommandations.longTerm.length < 5) {
-                    recommandations.longTerm.push(coin);
+                if (longTermChange > 0 && recommendations.longTerm.length < 5) {
+                    recommendations.longTerm.push(coin);
                 }
             });
 
@@ -257,9 +257,9 @@
             const mediumTermList = document.getElementById('medium-term-recommendations');
             const longTermList = document.getElementById('long-term-recommendations');
 
-            shortTermList.innerHTML = recommandations.shortTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
-            mediumTermList.innerHTML = recommandations.mediumTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
-            longTermList.innerHTML = recommandations.longTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
+            shortTermList.innerHTML = recommendations.shortTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
+            mediumTermList.innerHTML = recommendations.mediumTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
+            longTermList.innerHTML = recommendations.longTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
         }
 
         // Fetch data initially and then update every minute
