@@ -73,22 +73,14 @@
 
         <!-- Investment Recommender -->
         <div class="investment-recommender">
-            <label for="short-term-amount">Short Term Investment Amount (USD): </label>
-            <input type="number" id="short-term-amount" min="1" required>
-            <label for="medium-term-amount">Medium Term Investment Amount (USD): </label>
-            <input type="number" id="medium-term-amount" min="1" required>
-            <label for="long-term-amount">Long Term Investment Amount (USD): </label>
-            <input type="number" id="long-term-amount" min="1" required>
+            <label for="investment-amount">Investment Amount (USD): </label>
+            <input type="number" id="investment-amount" min="1" required>
             <button onclick="recommendInvestment()">Recommend Investment</button>
         </div>
 
         <div id="recommendations">
-            <h2>Short Term Investment</h2>
-            <ul id="short-term-recommendations"></ul>
-            <h2>Medium Term Investment</h2>
-            <ul id="medium-term-recommendations"></ul>
-            <h2>Long Term Investment</h2>
-            <ul id="long-term-recommendations"></ul>
+            <h2>Investment Recommendations</h2>
+            <ul id="investment-recommendations"></ul>
         </div>
 
         <div class="filter-controls">
@@ -112,9 +104,6 @@
                     <th onclick="sortTable(8)">Prediction 1w</th>
                     <th onclick="sortTable(9)">Prediction 1m</th>
                     <th onclick="sortTable(10)">Prediction 1y</th>
-                    <th onclick="sortTable(11)">Short Term</th>
-                    <th onclick="sortTable(12)">Medium Term</th>
-                    <th onclick="sortTable(13)">Long Term</th>
                 </tr>
             </thead>
             <tbody id="crypto-data">
@@ -153,6 +142,18 @@
             }
         }
 
+        async function fetchNewsImpact() {
+            // Assuming a function fetchNewsImpact exists to fetch news impact data.
+            // Replace with actual implementation.
+            return []; // Placeholder
+        }
+
+        async function fetchWebAnalysis() {
+            // Assuming a function fetchWebAnalysis exists to fetch web analysis data.
+            // Replace with actual implementation.
+            return []; // Placeholder
+        }
+
         function predictPrice(currentPrice, growthRate, periods) {
             return currentPrice * Math.pow(1 + growthRate, periods);
         }
@@ -188,14 +189,6 @@
                 const changeClass1m = prediction1m >= coin.current_price ? 'positive' : 'negative';
                 const changeClass1y = prediction1y >= coin.current_price ? 'positive' : 'negative';
 
-                const shortTermRecommendation = getRecommendation(shortTermChange);
-                const mediumTermRecommendation = getRecommendation(mediumTermChange);
-                const longTermRecommendation = getRecommendation(longTermChange);
-
-                const shortTermClass = shortTermRecommendation === 'Buy' ? 'positive' : (shortTermRecommendation === 'Sell' ? 'negative' : 'neutral');
-                const mediumTermClass = mediumTermRecommendation === 'Buy' ? 'positive' : (mediumTermRecommendation === 'Sell' ? 'negative' : 'neutral');
-                const longTermClass = longTermRecommendation === 'Buy' ? 'positive' : (longTermRecommendation === 'Sell' ? 'negative' : 'neutral');
-
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${coin.name}</td>
@@ -209,9 +202,6 @@
                     <td class="prediction-1w ${changeClass1w}">$${prediction1w.toFixed(2)}</td>
                     <td class="prediction-1m ${changeClass1m}">$${prediction1m.toFixed(2)}</td>
                     <td class="prediction-1y ${changeClass1y}">$${prediction1y.toFixed(2)}</td>
-                    <td class="short-term ${shortTermClass}">${shortTermRecommendation}</td>
-                    <td class="medium-term ${mediumTermClass}">${mediumTermRecommendation}</td>
-                    <td class="long-term ${longTermClass}">${longTermRecommendation}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -258,16 +248,15 @@
             rows.forEach(row => table.appendChild(row));
         }
 
-        function recommendInvestment() {
-            const shortTermAmount = parseFloat(document.getElementById('short-term-amount').value);
-            const mediumTermAmount = parseFloat(document.getElementById('medium-term-amount').value);
-            const longTermAmount = parseFloat(document.getElementById('long-term-amount').value);
-
-            if (isNaN(shortTermAmount) || shortTermAmount <= 0 || isNaN(mediumTermAmount) || mediumTermAmount <= 0 || isNaN(longTermAmount) || longTermAmount <= 0) {
-                alert('Please enter valid investment amounts');
+        async function recommendInvestment() {
+            const amount = parseFloat(document.getElementById('investment-amount').value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid investment amount');
                 return;
             }
 
+            const newsImpact = await fetchNewsImpact();
+            const webAnalysis = await fetchWebAnalysis();
             const recommendations = { shortTerm: [], mediumTerm: [], longTerm: [] };
 
             allData.forEach(coin => {
@@ -286,17 +275,12 @@
                 }
             });
 
-            const shortTermInvestmentPerCoin = (shortTermAmount / 5).toFixed(2);
-            const mediumTermInvestmentPerCoin = (mediumTermAmount / 5).toFixed(2);
-            const longTermInvestmentPerCoin = (longTermAmount / 5).toFixed(2);
+            const investmentPerCoin = (amount / 5).toFixed(2);
 
-            const shortTermList = document.getElementById('short-term-recommendations');
-            const mediumTermList = document.getElementById('medium-term-recommendations');
-            const longTermList = document.getElementById('long-term-recommendations');
-
-            shortTermList.innerHTML = recommendations.shortTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${shortTermInvestmentPerCoin}</li>`).join('');
-            mediumTermList.innerHTML = recommendations.mediumTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${mediumTermInvestmentPerCoin}</li>`).join('');
-            longTermList.innerHTML = recommendations.longTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${longTermInvestmentPerCoin}</li>`).join('');
+            const investmentList = document.getElementById('investment-recommendations');
+            investmentList.innerHTML = recommendations.shortTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
+            investmentList.innerHTML += recommendations.mediumTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
+            investmentList.innerHTML += recommendations.longTerm.map(coin => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentPerCoin}</li>`).join('');
         }
 
         // Fetch data initially and then update every minute
