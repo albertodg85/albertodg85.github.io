@@ -36,7 +36,9 @@
                 <th data-field="price_change_percentage_1h_in_currency">Cambio 1h (%)</th>
                 <th data-field="price_change_percentage_24h_in_currency">Cambio 24h (%)</th>
                 <th data-field="price_change_percentage_7d_in_currency">Cambio 7d (%)</th>
-                <!-- Añadir más columnas según lo necesitado -->
+                <th data-field="market_cap">Market Cap</th>
+                <th data-field="total_volume">Volume(24h)</th>
+                <th data-field="circulating_supply">Circulating Supply</th>
             </tr>
         </thead>
         <tbody id="crypto-table-body">
@@ -67,7 +69,9 @@
                         <td>${crypto.price_change_percentage_1h_in_currency ? crypto.price_change_percentage_1h_in_currency.toFixed(2) : 'N/A'}%</td>
                         <td>${crypto.price_change_percentage_24h_in_currency ? crypto.price_change_percentage_24h_in_currency.toFixed(2) : 'N/A'}%</td>
                         <td>${crypto.price_change_percentage_7d_in_currency ? crypto.price_change_percentage_7d_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <!-- Añadir más datos según lo necesitado -->
+                        <td>$${crypto.market_cap.toLocaleString()}</td>
+                        <td>$${crypto.total_volume.toLocaleString()}</td>
+                        <td>${crypto.circulating_supply.toLocaleString()}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -77,7 +81,7 @@
                 console.error('Error:', error);
                 const tbody = document.getElementById('crypto-table-body');
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="5">Error al obtener los datos de la API</td>`;
+                row.innerHTML = `<td colspan="8">Error al obtener los datos de la API</td>`;
                 tbody.appendChild(row);
             }
         }
