@@ -124,7 +124,7 @@
 
     <script>
         async function fetchCryptocurrencies() {
-            const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d');
+            const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d,1y');
             if (!response.ok) {
                 throw new Error('Error al obtener los datos de la API');
             }
@@ -180,14 +180,14 @@
                 shortTermList.appendChild(listItem);
             });
 
-            // Recomendaciones a largo plazo (ejemplo: top 5 por market cap)
+            // Recomendaciones a largo plazo (ejemplo: top 5 por cambio positivo en 1 año)
             const longTermRecommendations = cryptocurrencies
-                .sort((a, b) => b.market_cap - a.market_cap)
+                .sort((a, b) => b.price_change_percentage_1y_in_currency - a.price_change_percentage_1y_in_currency)
                 .slice(0, 5);
 
             longTermRecommendations.forEach(crypto => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${crypto.name} (Market Cap: $${crypto.market_cap.toLocaleString()})`;
+                listItem.textContent = `${crypto.name} (${crypto.price_change_percentage_1y_in_currency.toFixed(2)}%)`;
                 longTermList.appendChild(listItem);
             });
         }
