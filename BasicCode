@@ -5,16 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cryptomonedas</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            overflow: hidden;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
         }
         th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #f4f4f4;
+            background-color: #f8f8f8;
             cursor: pointer;
         }
         th.sort-asc::after {
@@ -23,28 +51,39 @@
         th.sort-desc::after {
             content: " ▼";
         }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .positive {
+            color: green;
+        }
+        .negative {
+            color: red;
+        }
     </style>
 </head>
 <body>
-    <h1>Lista de Cryptomonedas</h1>
-    <input type="text" id="filter" placeholder="Filtrar...">
-    <table>
-        <thead>
-            <tr>
-                <th data-field="name">Nombre</th>
-                <th data-field="current_price">Precio</th>
-                <th data-field="price_change_percentage_1h_in_currency">Cambio 1h (%)</th>
-                <th data-field="price_change_percentage_24h_in_currency">Cambio 24h (%)</th>
-                <th data-field="price_change_percentage_7d_in_currency">Cambio 7d (%)</th>
-                <th data-field="market_cap">Market Cap</th>
-                <th data-field="total_volume">Volume(24h)</th>
-                <th data-field="circulating_supply">Circulating Supply</th>
-            </tr>
-        </thead>
-        <tbody id="crypto-table-body">
-            <!-- Las filas de datos se insertarán aquí mediante JavaScript -->
-        </tbody>
-    </table>
+    <div class="container">
+        <h1>Lista de Cryptomonedas</h1>
+        <input type="text" id="filter" placeholder="Filtrar...">
+        <table>
+            <thead>
+                <tr>
+                    <th data-field="name">Nombre</th>
+                    <th data-field="current_price">Precio</th>
+                    <th data-field="price_change_percentage_1h_in_currency">Cambio 1h (%)</th>
+                    <th data-field="price_change_percentage_24h_in_currency">Cambio 24h (%)</th>
+                    <th data-field="price_change_percentage_7d_in_currency">Cambio 7d (%)</th>
+                    <th data-field="market_cap">Market Cap</th>
+                    <th data-field="total_volume">Volume(24h)</th>
+                    <th data-field="circulating_supply">Circulating Supply</th>
+                </tr>
+            </thead>
+            <tbody id="crypto-table-body">
+                <!-- Las filas de datos se insertarán aquí mediante JavaScript -->
+            </tbody>
+        </table>
+    </div>
 
     <script>
         async function fetchCryptocurrencies() {
@@ -66,9 +105,9 @@
                     row.innerHTML = `
                         <td>${crypto.name}</td>
                         <td>$${crypto.current_price}</td>
-                        <td>${crypto.price_change_percentage_1h_in_currency ? crypto.price_change_percentage_1h_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <td>${crypto.price_change_percentage_24h_in_currency ? crypto.price_change_percentage_24h_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <td>${crypto.price_change_percentage_7d_in_currency ? crypto.price_change_percentage_7d_in_currency.toFixed(2) : 'N/A'}%</td>
+                        <td class="${crypto.price_change_percentage_1h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_1h_in_currency ? crypto.price_change_percentage_1h_in_currency.toFixed(2) : 'N/A'}%</td>
+                        <td class="${crypto.price_change_percentage_24h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_24h_in_currency ? crypto.price_change_percentage_24h_in_currency.toFixed(2) : 'N/A'}%</td>
+                        <td class="${crypto.price_change_percentage_7d_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_7d_in_currency ? crypto.price_change_percentage_7d_in_currency.toFixed(2) : 'N/A'}%</td>
                         <td>$${crypto.market_cap.toLocaleString()}</td>
                         <td>$${crypto.total_volume.toLocaleString()}</td>
                         <td>${crypto.circulating_supply.toLocaleString()}</td>
