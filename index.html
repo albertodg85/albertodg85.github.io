@@ -3,309 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cryptocurrency Data</title>
+    <title>Cryptomonedas</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        p {
-            text-align: center;
-            color: #666;
-        }
         table {
             width: 100%;
-            max-width: 1000px;
             border-collapse: collapse;
-            margin-top: 20px;
-            overflow-x: auto;
-            display: block;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
         }
         th, td {
             padding: 10px;
-            text-align: center;
-            cursor: pointer;
+            border: 1px solid #ddd;
         }
         th {
-            background-color: #f2f2f2;
-            color: #333;
-        }
-        .positive {
-            color: green;
-        }
-        .negative {
-            color: red;
-        }
-        .neutral {
-            color: grey;
-        }
-        .filter-controls {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .trend-up {
-            color: green;
-        }
-        .trend-down {
-            color: red;
-        }
-        input, select, button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 1em;
-        }
-        #investment-recommender {
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fff;
-        }
-        #investment-recommendations {
-            list-style: none;
-            padding: 0;
-        }
-        #investment-recommendations li {
-            margin: 5px 0;
+            background-color: #f4f4f4;
         }
     </style>
 </head>
 <body>
-    <h1>Cryptocurrency Data</h1>
-    <p>Last updated: <span id="last-updated">Never</span></p>
-
-    <div class="filter-controls">
-        <label for="crypto-filter">Filter by Cryptocurrency:</label>
-        <select id="crypto-filter">
-            <option value="all">All</option>
-        </select>
-    </div>
-
-    <div id="investment-recommender">
-        <h2>Investment Recommender</h2>
-        <label for="investment-amount">Investment Amount:</label>
-        <input type="number" id="investment-amount" placeholder="Enter amount">
-        <label for="investment-type">Investment Type:</label>
-        <select id="investment-type">
-            <option value="short">Short-term</option>
-            <option value="medium">Medium-term</option>
-            <option value="long">Long-term</option>
-        </select>
-        <button onclick="recommendInvestment()">Recommend</button>
-        <ul id="investment-recommendations"></ul>
-    </div>
-    
+    <h1>Lista de Cryptomonedas</h1>
     <table>
         <thead>
             <tr>
-                <th onclick="sortTable(0)">Name</th>
-                <th onclick="sortTable(1)">Symbol</th>
-                <th onclick="sortTable(2)">Price</th>
-                <th onclick="sortTable(3)">Market Cap</th>
-                <th onclick="sortTable(4)">24h Volume</th>
-                <th onclick="sortTable(5)">24h Change</th>
-                <th onclick="sortTable(6)">Prediction 1h</th>
-                <th onclick="sortTable(7)">Prediction 1d</th>
-                <th onclick="sortTable(8)">Prediction 1w</th>
-                <th onclick="sortTable(9)">Prediction 1m</th>
-                <th onclick="sortTable(10)">Prediction 1y</th>
-                <th onclick="sortTable(11)">Tendencia</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Market Cap</th>
             </tr>
         </thead>
-        <tbody id="crypto-data">
-            <!-- Data will be inserted here -->
+        <tbody id="crypto-table-body">
+            <!-- Las filas de datos se insertarán aquí mediante JavaScript -->
         </tbody>
     </table>
 
     <script>
-        let allData = [];
-
-        async function fetchCryptoData() {
-            try {
-                const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d,30d,1y');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+        async function fetchCryptocurrencies() {
+            const response = await fetch('https://api.coingecko.com/api/v3/coins/markets', {
+                method: 'GET',
+                qs: {
+                    vs_currency: 'usd',
+                    order: 'market_cap_desc',
+                    per_page: 100,
+                    page: 1,
+                    sparkline: false
                 }
-                const data = await response.json();
-                allData = data;
-                updateTable(data);
-                updateDropdown(data);
-                updateTimestamp();
-            } catch (error) {
-                console.error('There has been a problem with your fetch operation:', error);
-            }
-        }
-
-        async function fetchWebAnalysis(coinId) {
-            const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=max`);
+            });
             const data = await response.json();
             return data;
         }
 
-        function predictPrice(currentPrice, growthRate, periods) {
-            return currentPrice * Math.pow(1 + growthRate, periods);
-        }
+        async function displayCryptocurrencies() {
+            const cryptocurrencies = await fetchCryptocurrencies();
+            const tbody = document.getElementById('crypto-table-body');
 
-        function getRecommendation(change) {
-            if (change > 0) {
-                return 'Buy';
-            } else if (change < 0) {
-                return 'Sell';
-            } else {
-                return 'Hold';
-            }
-        }
-
-        async function calculatePrediction(coin) {
-            const webAnalysis = await fetchWebAnalysis(coin.id);
-
-            let prediction1y = coin.current_price;
-            if (webAnalysis) {
-                const trends = webAnalysis.prices.map(([timestamp, price]) => price);
-                const trend = trends.reduce((a, b) => a + b, 0) / trends.length;
-                prediction1y = trend;
-            }
-            return prediction1y;
-        }
-
-        async function recommendInvestment() {
-            const amount = parseFloat(document.getElementById('investment-amount').value);
-            const type = document.getElementById('investment-type').value;
-            if (isNaN(amount) || amount <= 0) {
-                alert('Please enter a valid investment amount');
-                return;
-            }
-
-            const recommendations = [];
-
-            for (const coin of allData) {
-                const change = type === 'short' ? coin.price_change_percentage_24h
-                            : type === 'medium' ? coin.price_change_percentage_30d
-                            : await calculatePrediction(coin);
-                if (change > 0 && recommendations.length < 5) {
-                    recommendations.push(coin);
-                }
-            }
-
-            const investmentAmounts = [
-                (amount * 0.4).toFixed(2),
-                (amount * 0.2).toFixed(2),
-                (amount * 0.2).toFixed(2),
-                (amount * 0.1).toFixed(2),
-                (amount * 0.1).toFixed(2)
-            ];
-
-            const investmentList = document.getElementById('investment-recommendations');
-            investmentList.innerHTML = recommendations.map((coin, index) => `<li>${coin.name} (${coin.symbol.toUpperCase()}): $${investmentAmounts[index]}</li>`).join('');
-        }
-
-        async function updateTable(data) {
-            const tableBody = document.getElementById('crypto-data');
-            tableBody.innerHTML = ''; // Clear existing data
-            for (const coin of data) {
-                const growthRate = coin.price_change_percentage_24h / 100 / 24;
-                const prediction1h = predictPrice(coin.current_price, growthRate, 1);
-                const prediction1d = predictPrice(coin.current_price, growthRate, 24);
-                const prediction1w = predictPrice(coin.current_price, growthRate, 24 * 7);
-                const prediction1m = predictPrice(coin.current_price, growthRate, 24 * 30);
-                const prediction1y = await calculatePrediction(coin);
-                
-                const shortTermChange = prediction1d - coin.current_price;
-                const mediumTermChange = prediction1w - coin.current_price;
-                const longTermChange = prediction1y - coin.current_price;
-
-                const changeClass1h = prediction1h >= coin.current_price ? 'positive' : 'negative';
-                const changeClass1d = prediction1d >= coin.current_price ? 'positive' : 'negative';
-                const changeClass1w = prediction1w >= coin.current_price ? 'positive' : 'negative';
-                const changeClass1m = prediction1m >= coin.current_price ? 'positive' : 'negative';
-                const changeClass1y = prediction1y >= coin.current_price ? 'positive' : 'negative';
-
-                const trend = analyzeTrend(coin);
-                const trendClass = trend === 'up' ? 'trend-up' : 'trend-down';
-                const trendIcon = trend === 'up' ? '⬆️' : '⬇️';
-
-                const recommendation1h = getRecommendation(prediction1h - coin.current_price);
-                const recommendation1d = getRecommendation(prediction1d - coin.current_price);
-                const recommendation1w = getRecommendation(prediction1w - coin.current_price);
-                const recommendation1m = getRecommendation(prediction1m - coin.current_price);
-                const recommendation1y = getRecommendation(prediction1y - coin.current_price);
-
+            cryptocurrencies.forEach(crypto => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${coin.name}</td>
-                    <td>${coin.symbol.toUpperCase()}</td>
-                    <td class="price">$${coin.current_price.toLocaleString()}</td>
-                    <td class="market-cap">$${coin.market_cap.toLocaleString()}</td>
-                    <td class="volume">$${coin.total_volume.toLocaleString()}</td>
-                    <td class="${coin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}">${coin.price_change_percentage_24h.toFixed(2)}%</td>
-                    <td class="prediction-1h ${changeClass1h}">$${prediction1h.toFixed(2)} (${recommendation1h})</td>
-                    <td class="prediction-1d ${changeClass1d}">$${prediction1d.toFixed(2)} (${recommendation1d})</td>
-                    <td class="prediction-1w ${changeClass1w}">$${prediction1w.toFixed(2)} (${recommendation1w})</td>
-                    <td class="prediction-1m ${changeClass1m}">$${prediction1m.toFixed(2)} (${recommendation1m})</td>
-                    <td class="prediction-1y ${changeClass1y}">$${prediction1y.toFixed(2)} (${recommendation1y})</td>
-                    <td class="${trendClass}">${trendIcon}</td>
+                    <td>${crypto.name}</td>
+                    <td>$${crypto.current_price}</td>
+                    <td>$${crypto.market_cap}</td>
                 `;
-                tableBody.appendChild(row);
-            }
-        }
-
-        function updateDropdown(data) {
-            const dropdown = document.getElementById('crypto-filter');
-            data.forEach(coin => {
-                const option = document.createElement('option');
-                option.value = coin.id;
-                option.text = coin.name;
-                dropdown.appendChild(option);
+                tbody.appendChild(row);
             });
         }
 
-        function updateTimestamp() {
-            const timestamp = new Date().toLocaleString();
-            document.getElementById('last-updated').innerText = timestamp;
-        }
-
-        document.getElementById('crypto-filter').addEventListener('change', function() {
-            const selectedValue = this.value;
-            if (selectedValue === 'all') {
-                updateTable(allData);
-            } else {
-                const filteredData = allData.filter(coin => coin.id === selectedValue);
-                updateTable(filteredData);
-            }
-        });
-
-        function sortTable(columnIndex) {
-            const table = document.querySelector("table");
-            const rows = Array.from(table.rows).slice(1);
-            const isAscending = table.rows[0].cells[columnIndex].classList.toggle("asc");
-
-            rows.sort((row1, row2) => {
-                const cell1 = row1.cells[columnIndex].innerText;
-                const cell2 = row2.cells[columnIndex].innerText;
-                const a = isNaN(cell1) ? cell1 : parseFloat(cell1.replace(/[^0-9.-]+/g, ""));
-                const b = isNaN(cell2) ? cell2 : parseFloat(cell2.replace(/[^0-9.-]+/g, ""));
-                return (a > b ? 1 : -1) * (isAscending ? 1 : -1);
-            });
-
-            rows.forEach(row => table.appendChild(row));
-        }
-
-        fetchCryptoData();
-        setInterval(fetchCryptoData, 60000);
+        displayCryptocurrencies();
     </script>
 </body>
 </html>
