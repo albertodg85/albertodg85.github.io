@@ -29,6 +29,22 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
+        .recommendations {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .recommendation-box {
+            width: 45%;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .recommendation-box h2 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -71,6 +87,20 @@
 <body>
     <div class="container">
         <h1>Lista de Cryptomonedas</h1>
+        <div class="recommendations">
+            <div class="recommendation-box" id="short-term-recommendations">
+                <h2>Recomendaciones a Corto Plazo</h2>
+                <ul id="short-term-list">
+                    <!-- Las recomendaciones se insertarán aquí mediante JavaScript -->
+                </ul>
+            </div>
+            <div class="recommendation-box" id="long-term-recommendations">
+                <h2>Recomendaciones a Largo Plazo</h2>
+                <ul id="long-term-list">
+                    <!-- Las recomendaciones se insertarán aquí mediante JavaScript -->
+                </ul>
+            </div>
+        </div>
         <input type="text" id="filter" placeholder="Filtrar...">
         <table>
             <thead>
@@ -122,6 +152,8 @@
                     `;
                     tbody.appendChild(row);
                 });
+
+                displayRecommendations(cryptocurrencies);
                 addFilterFunctionality();
                 addSortFunctionality();
             } catch (error) {
@@ -131,6 +163,33 @@
                 row.innerHTML = `<td colspan="9">Error al obtener los datos de la API</td>`;
                 tbody.appendChild(row);
             }
+        }
+
+        function displayRecommendations(cryptocurrencies) {
+            const shortTermList = document.getElementById('short-term-list');
+            const longTermList = document.getElementById('long-term-list');
+
+            // Recomendaciones a corto plazo (ejemplo: top 5 por cambio positivo en 24h)
+            const shortTermRecommendations = cryptocurrencies
+                .sort((a, b) => b.price_change_percentage_24h_in_currency - a.price_change_percentage_24h_in_currency)
+                .slice(0, 5);
+
+            shortTermRecommendations.forEach(crypto => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${crypto.name} (${crypto.price_change_percentage_24h_in_currency.toFixed(2)}%)`;
+                shortTermList.appendChild(listItem);
+            });
+
+            // Recomendaciones a largo plazo (ejemplo: top 5 por market cap)
+            const longTermRecommendations = cryptocurrencies
+                .sort((a, b) => b.market_cap - a.market_cap)
+                .slice(0, 5);
+
+            longTermRecommendations.forEach(crypto => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${crypto.name} (Market Cap: $${crypto.market_cap.toLocaleString()})`;
+                longTermList.appendChild(listItem);
+            });
         }
 
         function addFilterFunctionality() {
