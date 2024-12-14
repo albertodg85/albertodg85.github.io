@@ -60,6 +60,12 @@
         .negative {
             color: red;
         }
+        .crypto-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -69,6 +75,7 @@
         <table>
             <thead>
                 <tr>
+                    <th data-field="icon">Icono</th>
                     <th data-field="name">Nombre</th>
                     <th data-field="current_price">Precio</th>
                     <th data-field="price_change_percentage_1h_in_currency">Cambio 1h (%)</th>
@@ -103,6 +110,7 @@
                 cryptocurrencies.forEach(crypto => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
+                        <td><img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon"></td>
                         <td>${crypto.name}</td>
                         <td>$${crypto.current_price}</td>
                         <td class="${crypto.price_change_percentage_1h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_1h_in_currency ? crypto.price_change_percentage_1h_in_currency.toFixed(2) : 'N/A'}%</td>
@@ -120,7 +128,7 @@
                 console.error('Error:', error);
                 const tbody = document.getElementById('crypto-table-body');
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="8">Error al obtener los datos de la API</td>`;
+                row.innerHTML = `<td colspan="9">Error al obtener los datos de la API</td>`;
                 tbody.appendChild(row);
             }
         }
