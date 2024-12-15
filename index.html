@@ -56,6 +56,10 @@
         }
         th {
             background-color: #f8f8f8;
+            cursor: pointer;
+        }
+        th:hover {
+            background-color: #e2e2e2;
         }
         tr:hover {
             background-color: #f1f1f1;
@@ -129,17 +133,6 @@
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter-input" class="filter-input" placeholder="Escribe el nombre de una criptomoneda">
         <div class="selected-filters" id="selected-filters"></div>
-        <label for="sort-dropdown">Ordenar por:</label>
-        <select id="sort-dropdown">
-            <option value="name">Nombre</option>
-            <option value="current_price">Precio</option>
-            <option value="price_change_percentage_1h_in_currency">Cambio 1h (%)</option>
-            <option value="price_change_percentage_24h_in_currency">Cambio 24h (%)</option>
-            <option value="price_change_percentage_7d_in_currency">Cambio 7d (%)</option>
-            <option value="market_cap">Market Cap</option>
-            <option value="total_volume">Volume (24h)</option>
-            <option value="circulating_supply">Circulating Supply</option>
-        </select>
         <table>
             <thead>
                 <tr>
@@ -221,17 +214,17 @@
                     row.dataset.cryptoName = crypto.name.toLowerCase();
                     row.innerHTML = `
                         <td><img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon"></td>
-                        <td>${crypto.name}</td>
-                        <td>$${crypto.current_price}</td>
-                        <td class="${crypto.price_change_percentage_1h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_1h_in_currency ? crypto.price_change_percentage_1h_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <td class="${crypto.price_change_percentage_24h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_24h_in_currency ? crypto.price_change_percentage_24h_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <td class="${crypto.price_change_percentage_7d_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_7d_in_currency ? crypto.price_change_percentage_7d_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <td>$${crypto.market_cap.toLocaleString()}</td>
-                        <td>$${crypto.total_volume.toLocaleString()}</td>
-                        <td>${crypto.circulating_supply.toLocaleString()}</td>
-                        <td class="${getTrendClass(trends.short_term_trend.trend)}">${trends.short_term_trend.percentage}%</td>
-                        <td class="${getTrendClass(trends.medium_term_trend.trend)}">${trends.medium_term_trend.percentage}%</td>
-                        <td class="${getTrendClass(trends.long_term_trend.trend)}">${trends.long_term_trend.percentage}%</td>
+                        <td data-field="name">${crypto.name}</td>
+                        <td data-field="current_price">$${crypto.current_price}</td>
+                        <td data-field="price_change_percentage_1h_in_currency" class="${crypto.price_change_percentage_1h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_1h_in_currency ? crypto.price_change_percentage_1h_in_currency.toFixed(2) : 'N/A'}%</td>
+                        <td data-field="price_change_percentage_24h_in_currency" class="${crypto.price_change_percentage_24h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_24h_in_currency ? crypto.price_change_percentage_24h_in_currency.toFixed(2) : 'N/A'}%</td>
+                        <td data-field="price_change_percentage_7d_in_currency" class="${crypto.price_change_percentage_7d_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_7d_in_currency ? crypto.price_change_percentage_7d_in_currency.toFixed(2) : 'N/A'}%</td>
+                        <td data-field="market_cap">$${crypto.market_cap.toLocaleString()}</td>
+                        <td data-field="total_volume">$${crypto.total_volume.toLocaleString()}</td>
+                        <td data-field="circulating_supply">${crypto.circulating_supply.toLocaleString()}</td>
+                        <td data-field="short_term_trend" class="${getTrendClass(trends.short_term_trend.trend)}">${trends.short_term_trend.percentage}%</td>
+                        <td data-field="medium_term_trend" class="${getTrendClass(trends.medium_term_trend.trend)}">${trends.medium_term_trend.percentage}%</td>
+                        <td data-field="long_term_trend" class="${getTrendClass(trends.long_term_trend.trend)}">${trends.long_term_trend.percentage}%</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -290,22 +283,25 @@
         }
 
         function addSortFunctionality() {
-            const sortDropdown = document.getElementById('sort-dropdown');
-            sortDropdown.addEventListener('change', function () {
-                const field = sortDropdown.value;
-                sortTable(field);
+            const headers = document.querySelectorAll('th');
+            headers.forEach(header => {
+                header.addEventListener('click', function () {
+                    const field = header.dataset.field;
+                    const order = header.dataset.order = -(header.dataset.order || -1);
+                    sortTable(field, order);
+                });
             });
         }
 
-        function sortTable(field) {
+        function sortTable(field, order) {
             const rows = Array.from(document.querySelectorAll('#crypto-table-body tr'));
             rows.sort((a, b) => {
-                const cellA = a.querySelector(`td[data-field='${field}']`).textContent;
-                const cellB = b.querySelector(`td[data-field='${field}']`).textContent;
+                const cellA = a.querySelector(`td[data-field='${field}']`).textContent.replace(/[^0-9.-]+/g,"");
+                const cellB = b.querySelector(`td[data-field='${field}']`).textContent.replace(/[^0-9.-]+/g,"");
                 if (!isNaN(cellA) && !isNaN(cellB)) {
-                    return cellA - cellB;
+                    return (cellA - cellB) * order;
                 }
-                return cellA.localeCompare(cellB);
+                return cellA.localeCompare(cellB) * order;
             });
             const tbody = document.getElementById('crypto-table-body');
             tbody.innerHTML = '';
@@ -337,21 +333,21 @@
                 return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
+                    expectedProfit: (Math.random() * 10).toFixed(2)
                 }));
             }
             if (term === 'medium-term') {
                 return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
+                    expectedProfit: (Math.random() * 10).toFixed(2)
                 }));
             }
             if (term === 'long-term') {
                 return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
+                    expectedProfit: (Math.random() * 10).toFixed(2)
                 }));
             }
         }
