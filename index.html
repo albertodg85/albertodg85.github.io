@@ -106,6 +106,10 @@
         .hidden-percentage {
             display: none;
         }
+        .expected-profit {
+            color: green;
+            font-weight: bold;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css" />
 </head>
@@ -361,7 +365,7 @@
         function generateRecommendations(cryptos, totalAmount) {
             return cryptos.map(crypto => {
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
-                return `${crypto.name}: $${amount} <span class="hidden-percentage">(${crypto.percentage}%, Expected Profit: ${crypto.expectedProfit}%)</span>`;
+                return `${crypto.name}: $${amount} <span class="expected-profit">(Expected Profit: ${crypto.expectedProfit}%)</span>`;
             }).join('<br>');
         }
 
