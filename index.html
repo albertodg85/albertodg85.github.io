@@ -158,12 +158,26 @@
             return data;
         }
 
+        function calculateTrends(crypto) {
+            // Placeholder function to simulate trend calculation
+            function getRandomTrend() {
+                return Math.random() > 0.5 ? "up" : "down";
+            }
+
+            return {
+                short_term_trend: getRandomTrend(),
+                medium_term_trend: getRandomTrend(),
+                long_term_trend: getRandomTrend()
+            };
+        }
+
         async function displayCryptocurrencies() {
             try {
                 const cryptocurrencies = await fetchCryptocurrencies();
                 const tbody = document.getElementById('crypto-table-body');
 
                 cryptocurrencies.forEach(crypto => {
+                    const trends = calculateTrends(crypto);
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td><img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon"></td>
@@ -175,9 +189,9 @@
                         <td>$${crypto.market_cap.toLocaleString()}</td>
                         <td>$${crypto.total_volume.toLocaleString()}</td>
                         <td>${crypto.circulating_supply.toLocaleString()}</td>
-                        <td class="${getTrendClass(crypto.short_term_trend)}">${getTrendArrow(crypto.short_term_trend)}</td>
-                        <td class="${getTrendClass(crypto.medium_term_trend)}">${getTrendArrow(crypto.medium_term_trend)}</td>
-                        <td class="${getTrendClass(crypto.long_term_trend)}">${getTrendArrow(crypto.long_term_trend)}</td>
+                        <td class="${getTrendClass(trends.short_term_trend)}">${getTrendArrow(trends.short_term_trend)}</td>
+                        <td class="${getTrendClass(trends.medium_term_trend)}">${getTrendArrow(trends.medium_term_trend)}</td>
+                        <td class="${getTrendClass(trends.long_term_trend)}">${getTrendArrow(trends.long_term_trend)}</td>
                     `;
                     tbody.appendChild(row);
                 });
