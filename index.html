@@ -56,13 +56,6 @@
         }
         th {
             background-color: #f8f8f8;
-            cursor: pointer;
-        }
-        th.sort-asc::after {
-            content: " ▲";
-        }
-        th.sort-desc::after {
-            content: " ▼";
         }
         tr:hover {
             background-color: #f1f1f1;
@@ -136,6 +129,17 @@
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter-input" class="filter-input" placeholder="Escribe el nombre de una criptomoneda">
         <div class="selected-filters" id="selected-filters"></div>
+        <label for="sort-dropdown">Ordenar por:</label>
+        <select id="sort-dropdown">
+            <option value="name">Nombre</option>
+            <option value="current_price">Precio</option>
+            <option value="price_change_percentage_1h_in_currency">Cambio 1h (%)</option>
+            <option value="price_change_percentage_24h_in_currency">Cambio 24h (%)</option>
+            <option value="price_change_percentage_7d_in_currency">Cambio 7d (%)</option>
+            <option value="market_cap">Market Cap</option>
+            <option value="total_volume">Volume (24h)</option>
+            <option value="circulating_supply">Circulating Supply</option>
+        </select>
         <table>
             <thead>
                 <tr>
@@ -146,7 +150,7 @@
                     <th data-field="price_change_percentage_24h_in_currency">Cambio 24h (%)</th>
                     <th data-field="price_change_percentage_7d_in_currency">Cambio 7d (%)</th>
                     <th data-field="market_cap">Market Cap</th>
-                    <th data-field="total_volume">Volume(24h)</th>
+                    <th data-field="total_volume">Volume (24h)</th>
                     <th data-field="circulating_supply">Circulating Supply</th>
                     <th data-field="short_term_trend">Tendencia Corto Plazo</th>
                     <th data-field="medium_term_trend">Tendencia Medio Plazo</th>
@@ -166,7 +170,7 @@
             <p><strong>Cambio 24h (%):</strong> Porcentaje de cambio en el precio de la criptomoneda en las últimas 24 horas. Indica la volatilidad diaria.</p>
             <p><strong>Cambio 7d (%):</strong> Porcentaje de cambio en el precio de la criptomoneda en los últimos 7 días. Indica la tendencia semanal.</p>
             <p><strong>Market Cap:</strong> Capitalización de mercado de la criptomoneda, calculada como el precio actual multiplicado por el total de monedas en circulación. Indica el tamaño y la [...]
-            <p><strong>Volume(24h):</strong> Volumen de transacciones de la criptomoneda en las últimas 24 horas. Indica la actividad y liquidez de la criptomoneda.</p>
+            <p><strong>Volume (24h):</strong> Volumen de transacciones de la criptomoneda en las últimas 24 horas. Indica la actividad y liquidez de la criptomoneda.</p>
             <p><strong>Circulating Supply:</strong> Cantidad de monedas de la criptomoneda que están en circulación actualmente. Indica la disponibilidad de la criptomoneda en el mercado.</p>
             <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
             <p><strong>Tendencia Medio Plazo:</strong> Predicción de la tendencia del valor a medio plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
@@ -286,36 +290,26 @@
         }
 
         function addSortFunctionality() {
-            const headers = document.querySelectorAll('th');
-            headers.forEach(header => {
-                header.addEventListener('click', function () {
-                    const field = header.getAttribute('data-field');
-                    const isDescending = header.classList.contains('sort-asc');
-                    sortTable(field, isDescending);
-                    headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
-                    header.classList.add(isDescending ? 'sort-desc' : 'sort-asc');
-                });
+            const sortDropdown = document.getElementById('sort-dropdown');
+            sortDropdown.addEventListener('change', function () {
+                const field = sortDropdown.value;
+                sortTable(field);
             });
         }
 
-        function sortTable(field, isDescending) {
+        function sortTable(field) {
             const rows = Array.from(document.querySelectorAll('#crypto-table-body tr'));
             rows.sort((a, b) => {
                 const cellA = a.querySelector(`td[data-field='${field}']`).textContent;
                 const cellB = b.querySelector(`td[data-field='${field}']`).textContent;
                 if (!isNaN(cellA) && !isNaN(cellB)) {
-                    return isDescending ? cellB - cellA : cellA - cellB;
+                    return cellA - cellB;
                 }
-                return isDescending ? cellB.localeCompare(cellA) : cellA.localeCompare(cellB);
+                return cellA.localeCompare(cellB);
             });
             const tbody = document.getElementById('crypto-table-body');
             tbody.innerHTML = '';
             rows.forEach(row => tbody.appendChild(row));
-        }
-
-        function getColumnIndex(field) {
-            const headers = document.querySelectorAll('th');
-            return Array.from(headers).findIndex(header => header.getAttribute('data-field') === field) + 1;
         }
 
         function getTrendClass(trend) {
