@@ -161,9 +161,9 @@
             <p><strong>Market Cap:</strong> Capitalización de mercado de la criptomoneda, calculada como el precio actual multiplicado por el total de monedas en circulación. Indica el tamaño y la [...]
             <p><strong>Volume(24h):</strong> Volumen de transacciones de la criptomoneda en las últimas 24 horas. Indica la actividad y liquidez de la criptomoneda.</p>
             <p><strong>Circulating Supply:</strong> Cantidad de monedas de la criptomoneda que están en circulación actualmente. Indica la disponibilidad de la criptomoneda en el mercado.</p>
-            <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (verde + para alza, rojo - para baja, azul x para no cambios significativos).</p>
-            <p><strong>Tendencia Medio Plazo:</strong> Predicción de la tendencia del valor a medio plazo (verde + para alza, rojo - para baja, azul x para no cambios significativos).</p>
-            <p><strong>Tendencia Largo Plazo:</strong> Predicción de la tendencia del valor a largo plazo (verde + para alza, rojo - para baja, azul x para no cambios significativos).</p>
+            <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
+            <p><strong>Tendencia Medio Plazo:</strong> Predicción de la tendencia del valor a medio plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
+            <p><strong>Tendencia Largo Plazo:</strong> Predicción de la tendencia del valor a largo plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
@@ -218,9 +218,9 @@
                         <td>$${crypto.market_cap.toLocaleString()}</td>
                         <td>$${crypto.total_volume.toLocaleString()}</td>
                         <td>${crypto.circulating_supply.toLocaleString()}</td>
-                        <td class="${getTrendClass(trends.short_term_trend.trend)}">${getTrendSymbol(trends.short_term_trend.trend)} ${trends.short_term_trend.percentage}%</td>
-                        <td class="${getTrendClass(trends.medium_term_trend.trend)}">${getTrendSymbol(trends.medium_term_trend.trend)} ${trends.medium_term_trend.percentage}%</td>
-                        <td class="${getTrendClass(trends.long_term_trend.trend)}">${getTrendSymbol(trends.long_term_trend.trend)} ${trends.long_term_trend.percentage}%</td>
+                        <td class="${getTrendClass(trends.short_term_trend.trend)}">${trends.short_term_trend.percentage}%</td>
+                        <td class="${getTrendClass(trends.medium_term_trend.trend)}">${trends.medium_term_trend.percentage}%</td>
+                        <td class="${getTrendClass(trends.long_term_trend.trend)}">${trends.long_term_trend.percentage}%</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -309,12 +309,6 @@
         function getColumnIndex(field) {
             const headers = document.querySelectorAll('th');
             return Array.from(headers).findIndex(header => header.getAttribute('data-field') === field) + 1;
-        }
-
-        function getTrendSymbol(trend) {
-            if (trend === "up") return "+";
-            if (trend === "down") return "-";
-            return "x";
         }
 
         function getTrendClass(trend) {
