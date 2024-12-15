@@ -284,11 +284,26 @@
         }
 
         function generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos) {
-            return `
-                <b>Corto Plazo:</b> Las inversiones a corto plazo se centran en criptomonedas con alto potencial de crecimiento rápido debido a su volatilidad y popularidad actual. Ejemplos: ${shortTermCryptos.map(crypto => crypto.name).join(', ')}.<br>
-                <b>Medio Plazo:</b> Las criptomonedas seleccionadas para el medio plazo son aquellas con fundamentos sólidos y desarrollos tecnológicos prometedores, lo que las hace aptas para mantener inversiones durante varios meses. Ejemplos: ${mediumTermCryptos.map(crypto => crypto.name).join(', ')}.<br>
-                <b>Largo Plazo:</b> En el largo plazo, se eligen criptomonedas con adopción global y casos de uso bien establecidos. Estas criptomonedas tienen el potencial de proporcionar estabilidad y crecimiento constante. Ejemplos: ${longTermCryptos.map(crypto => crypto.name).join(', ')}.
-            `;
+            return shortTermCryptos.map(crypto => {
+                const sources = getSourcesForCrypto(crypto.name);
+                return `<b>${crypto.name} (Corto Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
+            }).concat(mediumTermCryptos.map(crypto => {
+                const sources = getSourcesForCrypto(crypto.name);
+                return `<b>${crypto.name} (Medio Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
+            })).concat(longTermCryptos.map(crypto => {
+                const sources = getSourcesForCrypto(crypto.name);
+                return `<b>${crypto.name} (Largo Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
+            })).join('<br>');
+        }
+
+        function getSourcesForCrypto(cryptoName) {
+            // Placeholder function to simulate fetching sources for a given cryptocurrency
+            return ["Source 1", "Source 2", "Source 3"];
+        }
+
+        function generateDetailedExplanation(cryptoName) {
+            // Placeholder function to simulate generating a detailed explanation for a given cryptocurrency
+            return `La criptomoneda ${cryptoName} se recomienda debido a su sólido rendimiento histórico, innovaciones tecnológicas y adopción en el mercado.`;
         }
 
         async function updateRecommendations(cryptocurrencies) {
