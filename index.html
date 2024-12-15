@@ -21,7 +21,7 @@
             margin: auto;
             overflow: hidden;
         }
-        input[type="text"], input[type="number"], select, .filter-buttons {
+        input[type="text"], input[type="number"], select, .filter-input, .selected-filters {
             width: 100%;
             padding: 10px;
             margin: 20px 0;
@@ -29,21 +29,18 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
-        .filter-buttons {
+        .selected-filters {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
         }
-        .filter-button {
+        .filter-tag {
             padding: 10px 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: #f8f8f8;
             cursor: pointer;
             transition: background-color 0.3s;
-        }
-        .filter-button.active {
-            background-color: #ccc;
         }
         table {
             width: 100%;
@@ -129,7 +126,8 @@
             </div>
         </div>
         <h1>Lista de Cryptomonedas</h1>
-        <div class="filter-buttons" id="filter-buttons"></div>
+        <input type="text" id="filter-input" class="filter-input" placeholder="Escribe el nombre de una criptomoneda">
+        <div class="selected-filters" id="selected-filters"></div>
         <table>
             <thead>
                 <tr>
@@ -195,15 +193,9 @@
             try {
                 const cryptocurrencies = await fetchCryptocurrencies();
                 const tbody = document.getElementById('crypto-table-body');
-                const filterButtonsContainer = document.getElementById('filter-buttons');
 
                 cryptocurrencies.forEach(crypto => {
                     const trends = calculateTrends(crypto);
-                    const button = document.createElement('button');
-                    button.classList.add('filter-button');
-                    button.dataset.cryptoName = crypto.name.toLowerCase();
-                    button.innerText = crypto.name;
-                    filterButtonsContainer.appendChild(button);
 
                     const row = document.createElement('tr');
                     row.dataset.cryptoName = crypto.name.toLowerCase();
@@ -235,22 +227,45 @@
         }
 
         function addFilterFunctionality() {
-            const filterButtons = document.querySelectorAll('.filter-button');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    button.classList.toggle('active');
-                    const selectedCryptos = Array.from(document.querySelectorAll('.filter-button.active')).map(button => button.dataset.cryptoName);
-                    const rows = document.querySelectorAll('#crypto-table-body tr');
-                    rows.forEach(row => {
-                        const cryptoName = row.dataset.cryptoName;
-                        if (selectedCryptos.length === 0 || selectedCryptos.includes(cryptoName)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-                });
+            const filterInput = document.getElementById('filter-input');
+            const selectedFilters = document.getElementById('selected-filters');
+
+            filterInput.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter' && filterInput.value.trim() !== '') {
+                    const filterValue = filterInput.value.trim().toLowerCase();
+                    addFilterTag(filterValue);
+                    filterInput.value = '';
+                }
             });
+
+            function addFilterTag(filterValue) {
+                const existingTag = Array.from(selectedFilters.children).find(tag => tag.dataset.filter === filterValue);
+                if (!existingTag) {
+                    const tag = document.createElement('div');
+                    tag.classList.add('filter-tag');
+                    tag.dataset.filter = filterValue;
+                    tag.innerText = filterValue;
+                    tag.addEventListener('click', function () {
+                        selectedFilters.removeChild(tag);
+                        updateTableDisplay();
+                    });
+                    selectedFilters.appendChild(tag);
+                    updateTableDisplay();
+                }
+            }
+
+            function updateTableDisplay() {
+                const selectedFiltersArray = Array.from(selectedFilters.children).map(tag => tag.dataset.filter);
+                const rows = document.querySelectorAll('#crypto-table-body tr');
+                rows.forEach(row => {
+                    const cryptoName = row.dataset.cryptoName;
+                    if (selectedFiltersArray.length === 0 || selectedFiltersArray.includes(cryptoName)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
         }
 
         function addSortFunctionality() {
