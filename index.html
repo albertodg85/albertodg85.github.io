@@ -234,25 +234,56 @@
             return Array.from(headers).findIndex(header => header.getAttribute('data-field') === field) + 1;
         }
 
-        document.getElementById('investment-amount').addEventListener('input', function() {
+        document.getElementById('investment-amount').addEventListener('input', async function() {
             const amount = parseFloat(this.value);
             if (!isNaN(amount)) {
-                const shortTermCrypto = getBestCrypto('short-term'); // Implementa esta función según tu IA
-                const mediumTermCrypto = getBestCrypto('medium-term'); // Implementa esta función según tu IA
-                const longTermCrypto = getBestCrypto('long-term'); // Implementa esta función según tu IA
+                const shortTermCryptos = await getBestCryptos('short-term');
+                const mediumTermCryptos = await getBestCryptos('medium-term');
+                const longTermCryptos = await getBestCryptos('long-term');
 
-                document.getElementById('short-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en corto plazo en ${shortTermCrypto}.`;
-                document.getElementById('medium-term-recommendation').textContent = `Invertir $${(amount * 0.4).toFixed(2)} en medio plazo en ${mediumTermCrypto}.`;
-                document.getElementById('long-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en largo plazo en ${longTermCrypto}.`;
+                document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
+                document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
+                document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
             }
         });
 
-        function getBestCrypto(term) {
-            // Aquí puedes implementar la lógica de tu IA para seleccionar la mejor criptomoneda para cada plazo
-            // Por ahora, devuelve una criptomoneda de ejemplo
-            if (term === 'short-term') return 'Bitcoin (BTC)';
-            if (term === 'medium-term') return 'Ethereum (ETH)';
-            if (term === 'long-term') return 'Cardano (ADA)';
+        async function getBestCryptos(term) {
+            // Implementa la lógica de tu IA para seleccionar las mejores 5 criptomonedas para cada plazo
+            // Por ahora, devuelve criptomonedas de ejemplo con porcentajes
+            if (term === 'short-term') {
+                return [
+                    {name: 'Bitcoin (BTC)', percentage: 30},
+                    {name: 'Ethereum (ETH)', percentage: 25},
+                    {name: 'Binance Coin (BNB)', percentage: 20},
+                    {name: 'Solana (SOL)', percentage: 15},
+                    {name: 'Polkadot (DOT)', percentage: 10}
+                ];
+            }
+            if (term === 'medium-term') {
+                return [
+                    {name: 'Ethereum (ETH)', percentage: 30},
+                    {name: 'Cardano (ADA)', percentage: 25},
+                    {name: 'Avalanche (AVAX)', percentage: 20},
+                    {name: 'Chainlink (LINK)', percentage: 15},
+                    {name: 'Polygon (MATIC)', percentage: 10}
+                ];
+            }
+            if (term === 'long-term') {
+                return [
+                    {name: 'Cardano (ADA)', percentage: 30},
+                    {name: 'Polkadot (DOT)', percentage: 25},
+                    {name: 'Chainlink (LINK)', percentage: 20},
+                    {name: 'VeChain (VET)', percentage: 15},
+                    {name: 'Stellar (XLM)', percentage: 10}
+                ];
+            }
+        }
+
+        function generateRecommendations(cryptos, totalAmount) {
+            return cryptos.map(crypto => {
+                const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
+                return `${crypto.name}: $${amount} (${crypto.percentage}%)`;
+            }).join('<br>');
         }
 
         displayCryptocurrencies();
