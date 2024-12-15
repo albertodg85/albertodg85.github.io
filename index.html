@@ -66,10 +66,39 @@
             margin-right: 10px;
             vertical-align: middle;
         }
+        .investment-recommendations {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e9e9e9;
+            border-radius: 5px;
+        }
+        .recommendation {
+            width: 30%;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="investment-recommendations">
+            <div class="recommendation" id="short-term">
+                <h2>Inversión a Corto Plazo</h2>
+                <p>Recomendaciones...</p>
+            </div>
+            <div class="recommendation" id="medium-term">
+                <h2>Inversión a Medio Plazo</h2>
+                <p>Recomendaciones...</p>
+            </div>
+            <div class="recommendation" id="long-term">
+                <h2>Inversión a Largo Plazo</h2>
+                <p>Recomendaciones...</p>
+            </div>
+        </div>
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter" placeholder="Filtrar...">
         <table>
@@ -91,7 +120,6 @@
             </tbody>
         </table>
     </div>
-
     <script>
         async function fetchCryptocurrencies() {
             const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d');
