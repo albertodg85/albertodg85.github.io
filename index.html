@@ -109,6 +109,10 @@
                 <p id="long-term-recommendation">Recomendaciones...</p>
             </div>
         </div>
+        <div id="ai-explanation">
+            <h2>Motivo de Inversión en las Criptomonedas Recomendadas</h2>
+            <p id="ai-explanation-content">Explicaciones generadas por IA...</p>
+        </div>
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter" placeholder="Filtrar...">
         <table>
@@ -246,12 +250,12 @@
                 document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
                 document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
                 document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
+
+                document.getElementById('ai-explanation-content').innerHTML = generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos);
             }
         });
 
         function getBestCryptos(term, cryptocurrencies) {
-            // Implementa la lógica de tu IA para seleccionar las mejores 5 criptomonedas para cada plazo
-            // Por ahora, devuelve criptomonedas de ejemplo con porcentajes
             if (term === 'short-term') {
                 return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
                     name: crypto.name,
@@ -277,6 +281,14 @@
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
                 return `${crypto.name}: $${amount} (${crypto.percentage}%)`;
             }).join('<br>');
+        }
+
+        function generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos) {
+            return `
+                <b>Corto Plazo:</b> Las inversiones a corto plazo se centran en criptomonedas con alto potencial de crecimiento rápido debido a su volatilidad y popularidad actual. Ejemplos: ${shortTermCryptos.map(crypto => crypto.name).join(', ')}.<br>
+                <b>Medio Plazo:</b> Las criptomonedas seleccionadas para el medio plazo son aquellas con fundamentos sólidos y desarrollos tecnológicos prometedores, lo que las hace aptas para mantener inversiones durante varios meses. Ejemplos: ${mediumTermCryptos.map(crypto => crypto.name).join(', ')}.<br>
+                <b>Largo Plazo:</b> En el largo plazo, se eligen criptomonedas con adopción global y casos de uso bien establecidos. Estas criptomonedas tienen el potencial de proporcionar estabilidad y crecimiento constante. Ejemplos: ${longTermCryptos.map(crypto => crypto.name).join(', ')}.
+            `;
         }
 
         async function updateRecommendations(cryptocurrencies) {
