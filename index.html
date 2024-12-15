@@ -21,7 +21,7 @@
             margin: auto;
             overflow: hidden;
         }
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 10px;
             margin: 20px 0;
@@ -113,7 +113,9 @@
             </div>
         </div>
         <h1>Lista de Cryptomonedas</h1>
-        <input type="text" id="filter" placeholder="Filtrar...">
+        <select id="filter" multiple>
+            <!-- Options will be populated by JavaScript -->
+        </select>
         <table>
             <thead>
                 <tr>
@@ -162,14 +164,12 @@
         }
 
         function calculateTrends(crypto) {
-            // Placeholder function to simulate trend calculation
             function getRandomTrend() {
                 const randomValue = Math.random();
                 if (randomValue > 0.7) return { trend: "up", percentage: (Math.random() * 10).toFixed(2) };
                 if (randomValue < 0.3) return { trend: "down", percentage: -(Math.random() * 10).toFixed(2) };
                 return { trend: "neutral", percentage: (Math.random() * 2 - 1).toFixed(2) };
             }
-
             return {
                 short_term_trend: getRandomTrend(),
                 medium_term_trend: getRandomTrend(),
@@ -181,10 +181,17 @@
             try {
                 const cryptocurrencies = await fetchCryptocurrencies();
                 const tbody = document.getElementById('crypto-table-body');
+                const filterSelect = document.getElementById('filter');
 
                 cryptocurrencies.forEach(crypto => {
                     const trends = calculateTrends(crypto);
+                    const option = document.createElement('option');
+                    option.value = crypto.name.toLowerCase();
+                    option.innerText = crypto.name;
+                    filterSelect.appendChild(option);
+
                     const row = document.createElement('tr');
+                    row.dataset.cryptoName = crypto.name.toLowerCase();
                     row.innerHTML = `
                         <td><img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon"></td>
                         <td>${crypto.name}</td>
@@ -213,19 +220,17 @@
         }
 
         function addFilterFunctionality() {
-            const filterInput = document.getElementById('filter');
-            filterInput.addEventListener('input', function () {
-                const filterValue = filterInput.value.toLowerCase();
+            const filterSelect = document.getElementById('filter');
+            filterSelect.addEventListener('change', function () {
+                const selectedOptions = Array.from(filterSelect.selectedOptions).map(option => option.value);
                 const rows = document.querySelectorAll('#crypto-table-body tr');
                 rows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    let match = false;
-                    cells.forEach(cell => {
-                        if (cell.textContent.toLowerCase().includes(filterValue)) {
-                            match = true;
-                        }
-                    });
-                    row.style.display = match ? '' : 'none';
+                    const cryptoName = row.dataset.cryptoName;
+                    if (selectedOptions.includes(cryptoName)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
                 });
             });
         }
