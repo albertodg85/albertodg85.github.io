@@ -109,6 +109,10 @@
                 <p id="long-term-recommendation">Recomendaciones...</p>
             </div>
         </div>
+        <div id="ai-explanation">
+            <h2>Motivo de Inversión en las Criptomonedas Recomendadas</h2>
+            <p id="ai-explanation-content">Explicaciones generadas por IA...</p>
+        </div>
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter" placeholder="Filtrar...">
         <table>
@@ -246,12 +250,12 @@
                 document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
                 document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
                 document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
+
+                document.getElementById('ai-explanation-content').innerHTML = generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos);
             }
         });
 
         function getBestCryptos(term, cryptocurrencies) {
-            // Implementa la lógica de tu IA para seleccionar las mejores 5 criptomonedas para cada plazo
-            // Por ahora, devuelve criptomonedas de ejemplo con porcentajes
             if (term === 'short-term') {
                 return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
                     name: crypto.name,
@@ -277,6 +281,29 @@
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
                 return `${crypto.name}: $${amount} (${crypto.percentage}%)`;
             }).join('<br>');
+        }
+
+        function generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos) {
+            return shortTermCryptos.map(crypto => {
+                const sources = getSourcesForCrypto(crypto.name);
+                return `<b>${crypto.name} (Corto Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
+            }).concat(mediumTermCryptos.map(crypto => {
+                const sources = getSourcesForCrypto(crypto.name);
+                return `<b>${crypto.name} (Medio Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
+            })).concat(longTermCryptos.map(crypto => {
+                const sources = getSourcesForCrypto(crypto.name);
+                return `<b>${crypto.name} (Largo Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
+            })).join('<br>');
+        }
+
+        function getSourcesForCrypto(cryptoName) {
+            // Placeholder function to simulate fetching sources for a given cryptocurrency
+            return ["Source 1", "Source 2", "Source 3"];
+        }
+
+        function generateDetailedExplanation(cryptoName) {
+            // Placeholder function to simulate generating a detailed explanation for a given cryptocurrency
+            return `La criptomoneda ${cryptoName} se recomienda debido a su sólido rendimiento histórico, innovaciones tecnológicas y adopción en el mercado.`;
         }
 
         async function updateRecommendations(cryptocurrencies) {
