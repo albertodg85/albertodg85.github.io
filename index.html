@@ -335,19 +335,22 @@
             if (term === 'short-term') {
                 return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
                     name: crypto.name,
-                    percentage: 30 - index * 5
+                    percentage: 30 - index * 5,
+                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
                 }));
             }
             if (term === 'medium-term') {
                 return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
                     name: crypto.name,
-                    percentage: 30 - index * 5
+                    percentage: 30 - index * 5,
+                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
                 }));
             }
             if (term === 'long-term') {
                 return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
                     name: crypto.name,
-                    percentage: 30 - index * 5
+                    percentage: 30 - index * 5,
+                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
                 }));
             }
         }
@@ -355,7 +358,7 @@
         function generateRecommendations(cryptos, totalAmount) {
             return cryptos.map(crypto => {
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
-                return `${crypto.name}: $${amount} (${crypto.percentage}%)`;
+                return `${crypto.name}: $${amount} (${crypto.percentage}%, Expected Profit: ${crypto.expectedProfit}%)`;
             }).join('<br>');
         }
 
