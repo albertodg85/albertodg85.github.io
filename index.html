@@ -98,15 +98,15 @@
         <div class="investment-recommendations">
             <div class="recommendation" id="short-term">
                 <h2>Inversión a Corto Plazo</h2>
-                <p>Recomendaciones...</p>
+                <p id="short-term-recommendation">Recomendaciones...</p>
             </div>
             <div class="recommendation" id="medium-term">
                 <h2>Inversión a Medio Plazo</h2>
-                <p>Recomendaciones...</p>
+                <p id="medium-term-recommendation">Recomendaciones...</p>
             </div>
             <div class="recommendation" id="long-term">
                 <h2>Inversión a Largo Plazo</h2>
-                <p>Recomendaciones...</p>
+                <p id="long-term-recommendation">Recomendaciones...</p>
             </div>
         </div>
         <h1>Lista de Cryptomonedas</h1>
@@ -221,6 +221,15 @@
             const headers = document.querySelectorAll('th');
             return Array.from(headers).findIndex(header => header.getAttribute('data-field') === field) + 1;
         }
+
+        document.getElementById('investment-amount').addEventListener('input', function() {
+            const amount = parseFloat(this.value);
+            if (!isNaN(amount)) {
+                document.getElementById('short-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en corto plazo.`;
+                document.getElementById('medium-term-recommendation').textContent = `Invertir $${(amount * 0.4).toFixed(2)} en medio plazo.`;
+                document.getElementById('long-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en largo plazo.`;
+            }
+        });
 
         displayCryptocurrencies();
     </script>
