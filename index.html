@@ -225,11 +225,23 @@
         document.getElementById('investment-amount').addEventListener('input', function() {
             const amount = parseFloat(this.value);
             if (!isNaN(amount)) {
-                document.getElementById('short-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en corto plazo.`;
-                document.getElementById('medium-term-recommendation').textContent = `Invertir $${(amount * 0.4).toFixed(2)} en medio plazo.`;
-                document.getElementById('long-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en largo plazo.`;
+                const shortTermCrypto = getBestCrypto('short-term'); // Implementa esta función según tu IA
+                const mediumTermCrypto = getBestCrypto('medium-term'); // Implementa esta función según tu IA
+                const longTermCrypto = getBestCrypto('long-term'); // Implementa esta función según tu IA
+
+                document.getElementById('short-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en corto plazo en ${shortTermCrypto}.`;
+                document.getElementById('medium-term-recommendation').textContent = `Invertir $${(amount * 0.4).toFixed(2)} en medio plazo en ${mediumTermCrypto}.`;
+                document.getElementById('long-term-recommendation').textContent = `Invertir $${(amount * 0.3).toFixed(2)} en largo plazo en ${longTermCrypto}.`;
             }
         });
+
+        function getBestCrypto(term) {
+            // Aquí puedes implementar la lógica de tu IA para seleccionar la mejor criptomoneda para cada plazo
+            // Por ahora, devuelve una criptomoneda de ejemplo
+            if (term === 'short-term') return 'Bitcoin (BTC)';
+            if (term === 'medium-term') return 'Ethereum (ETH)';
+            if (term === 'long-term') return 'Cardano (ADA)';
+        }
 
         displayCryptocurrencies();
     </script>
