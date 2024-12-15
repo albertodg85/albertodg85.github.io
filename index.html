@@ -60,6 +60,9 @@
         .negative {
             color: red;
         }
+        .neutral {
+            color: blue;
+        }
         .crypto-icon {
             width: 24px;
             height: 24px;
@@ -143,9 +146,9 @@
             <p><strong>Market Cap:</strong> Capitalización de mercado de la criptomoneda, calculada como el precio actual multiplicado por el total de monedas en circulación. Indica el tamaño y la relevancia de la criptomoneda en el mercado.</p>
             <p><strong>Volume(24h):</strong> Volumen de transacciones de la criptomoneda en las últimas 24 horas. Indica la actividad y liquidez de la criptomoneda.</p>
             <p><strong>Circulating Supply:</strong> Cantidad de monedas de la criptomoneda que están en circulación actualmente. Indica la disponibilidad de la criptomoneda en el mercado.</p>
-            <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (flecha verde para alza, flecha roja para baja).</p>
-            <p><strong>Tendencia Medio Plazo:</strong> Predicción de la tendencia del valor a medio plazo (flecha verde para alza, flecha roja para baja).</p>
-            <p><strong>Tendencia Largo Plazo:</strong> Predicción de la tendencia del valor a largo plazo (flecha verde para alza, flecha roja para baja).</p>
+            <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (verde + para alza, rojo - para baja, azul x para no cambios significativos).</p>
+            <p><strong>Tendencia Medio Plazo:</strong> Predicción de la tendencia del valor a medio plazo (verde + para alza, rojo - para baja, azul x para no cambios significativos).</p>
+            <p><strong>Tendencia Largo Plazo:</strong> Predicción de la tendencia del valor a largo plazo (verde + para alza, rojo - para baja, azul x para no cambios significativos).</p>
         </div>
     </div>
     <script>
@@ -161,7 +164,10 @@
         function calculateTrends(crypto) {
             // Placeholder function to simulate trend calculation
             function getRandomTrend() {
-                return Math.random() > 0.5 ? "up" : "down";
+                const randomValue = Math.random();
+                if (randomValue > 0.7) return { trend: "up", percentage: (Math.random() * 10).toFixed(2) };
+                if (randomValue < 0.3) return { trend: "down", percentage: -(Math.random() * 10).toFixed(2) };
+                return { trend: "neutral", percentage: (Math.random() * 2 - 1).toFixed(2) };
             }
 
             return {
@@ -189,9 +195,9 @@
                         <td>$${crypto.market_cap.toLocaleString()}</td>
                         <td>$${crypto.total_volume.toLocaleString()}</td>
                         <td>${crypto.circulating_supply.toLocaleString()}</td>
-                        <td class="${getTrendClass(trends.short_term_trend)}">${getTrendArrow(trends.short_term_trend)}</td>
-                        <td class="${getTrendClass(trends.medium_term_trend)}">${getTrendArrow(trends.medium_term_trend)}</td>
-                        <td class="${getTrendClass(trends.long_term_trend)}">${getTrendArrow(trends.long_term_trend)}</td>
+                        <td class="${getTrendClass(trends.short_term_trend.trend)}">${getTrendSymbol(trends.short_term_trend.trend)} ${trends.short_term_trend.percentage}%</td>
+                        <td class="${getTrendClass(trends.medium_term_trend.trend)}">${getTrendSymbol(trends.medium_term_trend.trend)} ${trends.medium_term_trend.percentage}%</td>
+                        <td class="${getTrendClass(trends.long_term_trend.trend)}">${getTrendSymbol(trends.long_term_trend.trend)} ${trends.long_term_trend.percentage}%</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -257,12 +263,16 @@
             return Array.from(headers).findIndex(header => header.getAttribute('data-field') === field) + 1;
         }
 
-        function getTrendArrow(trend) {
-            return trend === "up" ? "⬆️" : "⬇️";
+        function getTrendSymbol(trend) {
+            if (trend === "up") return "+";
+            if (trend === "down") return "-";
+            return "x";
         }
 
         function getTrendClass(trend) {
-            return trend === "up" ? "positive" : "negative";
+            if (trend === "up") return "positive";
+            if (trend === "down") return "negative";
+            return "neutral";
         }
 
         document.getElementById('investment-amount').addEventListener('input', async function() {
