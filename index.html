@@ -109,6 +109,15 @@
                 <p id="long-term-recommendation">Recomendaciones...</p>
             </div>
         </div>
+        <h1>Recomendaciones de Inversión</h1>
+        <div id="chatgpt-recommendations">
+            <h2>Recomendaciones a Corto Plazo</h2>
+            <ul id="chatgpt-short-term"></ul>
+            <h2>Recomendaciones a Medio Plazo</h2>
+            <ul id="chatgpt-medium-term"></ul>
+            <h2>Recomendaciones a Largo Plazo</h2>
+            <ul id="chatgpt-long-term"></ul>
+        </div>
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter" placeholder="Filtrar...">
         <table>
@@ -174,6 +183,7 @@
                 });
                 addFilterFunctionality();
                 addSortFunctionality();
+                updateRecommendations(cryptocurrencies);
             } catch (error) {
                 console.error('Error:', error);
                 const tbody = document.getElementById('crypto-table-body');
@@ -237,9 +247,10 @@
         document.getElementById('investment-amount').addEventListener('input', async function() {
             const amount = parseFloat(this.value);
             if (!isNaN(amount)) {
-                const shortTermCryptos = await getBestCryptos('short-term');
-                const mediumTermCryptos = await getBestCryptos('medium-term');
-                const longTermCryptos = await getBestCryptos('long-term');
+                const cryptocurrencies = await fetchCryptocurrencies();
+                const shortTermCryptos = getBestCryptos('short-term', cryptocurrencies);
+                const mediumTermCryptos = getBestCryptos('medium-term', cryptocurrencies);
+                const longTermCryptos = getBestCryptos('long-term', cryptocurrencies);
 
                 document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
                 document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
@@ -247,35 +258,26 @@
             }
         });
 
-        async function getBestCryptos(term) {
+        function getBestCryptos(term, cryptocurrencies) {
             // Implementa la lógica de tu IA para seleccionar las mejores 5 criptomonedas para cada plazo
             // Por ahora, devuelve criptomonedas de ejemplo con porcentajes
             if (term === 'short-term') {
-                return [
-                    {name: 'Bitcoin (BTC)', percentage: 30},
-                    {name: 'Ethereum (ETH)', percentage: 25},
-                    {name: 'Binance Coin (BNB)', percentage: 20},
-                    {name: 'Solana (SOL)', percentage: 15},
-                    {name: 'Polkadot (DOT)', percentage: 10}
-                ];
+                return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
+                    name: crypto.name,
+                    percentage: 30 - index * 5
+                }));
             }
             if (term === 'medium-term') {
-                return [
-                    {name: 'Ethereum (ETH)', percentage: 30},
-                    {name: 'Cardano (ADA)', percentage: 25},
-                    {name: 'Avalanche (AVAX)', percentage: 20},
-                    {name: 'Chainlink (LINK)', percentage: 15},
-                    {name: 'Polygon (MATIC)', percentage: 10}
-                ];
+                return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
+                    name: crypto.name,
+                    percentage: 30 - index * 5
+                }));
             }
             if (term === 'long-term') {
-                return [
-                    {name: 'Cardano (ADA)', percentage: 30},
-                    {name: 'Polkadot (DOT)', percentage: 25},
-                    {name: 'Chainlink (LINK)', percentage: 20},
-                    {name: 'VeChain (VET)', percentage: 15},
-                    {name: 'Stellar (XLM)', percentage: 10}
-                ];
+                return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
+                    name: crypto.name,
+                    percentage: 30 - index * 5
+                }));
             }
         }
 
@@ -284,6 +286,16 @@
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
                 return `${crypto.name}: $${amount} (${crypto.percentage}%)`;
             }).join('<br>');
+        }
+
+        async function updateRecommendations(cryptocurrencies) {
+            const shortTermCryptos = getBestCryptos('short-term', cryptocurrencies);
+            const mediumTermCryptos = getBestCryptos('medium-term', cryptocurrencies);
+            const longTermCryptos = getBestCryptos('long-term', cryptocurrencies);
+
+            document.getElementById('chatgpt-short-term').innerHTML = shortTermCryptos.map(crypto => `<li>${crypto.name}: ${crypto.percentage}%</li>`).join('');
+            document.getElementById('chatgpt-medium-term').innerHTML = mediumTermCryptos.map(crypto => `<li>${crypto.name}: ${crypto.percentage}%</li>`).join('');
+            document.getElementById('chatgpt-long-term').innerHTML = longTermCryptos.map(crypto => `<li>${crypto.name}: ${crypto.percentage}%</li>`).join('');
         }
 
         displayCryptocurrencies();
