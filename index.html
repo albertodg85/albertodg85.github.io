@@ -257,19 +257,19 @@
 
         function getBestCryptos(term, cryptocurrencies) {
             if (term === 'short-term') {
-                return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
+                return cryptocurrencies.slice(0, 2).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5
                 }));
             }
             if (term === 'medium-term') {
-                return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
+                return cryptocurrencies.slice(5, 7).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5
                 }));
             }
             if (term === 'long-term') {
-                return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
+                return cryptocurrencies.slice(10, 12).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5
                 }));
