@@ -151,6 +151,7 @@
                     <th data-field="short_term_trend">Tendencia Corto Plazo</th>
                     <th data-field="medium_term_trend">Tendencia Medio Plazo</th>
                     <th data-field="long_term_trend">Tendencia Largo Plazo</th>
+                    <th data-field="whitepaper">Whitepaper</th>
                 </tr>
             </thead>
             <tbody id="crypto-table-body">
@@ -171,6 +172,7 @@
             <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
             <p><strong>Tendencia Medio Plazo:</strong> Predicción de la tendencia del valor a medio plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
             <p><strong>Tendencia Largo Plazo:</strong> Predicción de la tendencia del valor a largo plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
+            <p><strong>Whitepaper:</strong> Enlace al whitepaper de la criptomoneda.</p>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
@@ -228,6 +230,7 @@
                         <td class="${getTrendClass(trends.short_term_trend.trend)}">${trends.short_term_trend.percentage}%</td>
                         <td class="${getTrendClass(trends.medium_term_trend.trend)}">${trends.medium_term_trend.percentage}%</td>
                         <td class="${getTrendClass(trends.long_term_trend.trend)}">${trends.long_term_trend.percentage}%</td>
+                        <td><a href="${crypto.whitepaper}" target="_blank">Whitepaper</a></td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -238,7 +241,7 @@
                 console.error('Error:', error);
                 const tbody = document.getElementById('crypto-table-body');
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="12">Error al obtener los datos de la API</td>`;
+                row.innerHTML = `<td colspan="13">Error al obtener los datos de la API</td>`;
                 tbody.appendChild(row);
             }
         }
@@ -343,21 +346,24 @@
                 return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
+                    expectedProfit: (Math.random() * 10).toFixed(2), // Example expected profit calculation
+                    whitepaper: crypto.whitepaper // Assuming whitepaper link is available in the API response
                 }));
             }
             if (term === 'medium-term') {
                 return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
+                    expectedProfit: (Math.random() * 10).toFixed(2), // Example expected profit calculation
+                    whitepaper: crypto.whitepaper // Assuming whitepaper link is available in the API response
                 }));
             }
             if (term === 'long-term') {
                 return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2) // Example expected profit calculation
+                    expectedProfit: (Math.random() * 10).toFixed(2), // Example expected profit calculation
+                    whitepaper: crypto.whitepaper // Assuming whitepaper link is available in the API response
                 }));
             }
         }
