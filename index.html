@@ -21,7 +21,7 @@
             margin: auto;
             overflow: hidden;
         }
-        input[type="text"] {
+        input[type="text"], input[type="number"] {
             width: 100%;
             padding: 10px;
             margin: 20px 0;
@@ -81,10 +81,20 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        .investment-input {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9e9e9;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="investment-input">
+            <h2>Cantidad a Invertir</h2>
+            <input type="number" id="investment-amount" placeholder="Introduce la cantidad que deseas invertir...">
+        </div>
         <div class="investment-recommendations">
             <div class="recommendation" id="short-term">
                 <h2>Inversión a Corto Plazo</h2>
