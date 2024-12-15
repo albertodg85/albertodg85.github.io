@@ -21,13 +21,29 @@
             margin: auto;
             overflow: hidden;
         }
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"], select, .filter-buttons {
             width: 100%;
             padding: 10px;
             margin: 20px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
             box-sizing: border-box;
+        }
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .filter-button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .filter-button.active {
+            background-color: #ccc;
         }
         table {
             width: 100%;
@@ -113,9 +129,7 @@
             </div>
         </div>
         <h1>Lista de Cryptomonedas</h1>
-        <select id="filter" multiple>
-            <!-- Options will be populated by JavaScript -->
-        </select>
+        <div class="filter-buttons" id="filter-buttons"></div>
         <table>
             <thead>
                 <tr>
@@ -181,14 +195,15 @@
             try {
                 const cryptocurrencies = await fetchCryptocurrencies();
                 const tbody = document.getElementById('crypto-table-body');
-                const filterSelect = document.getElementById('filter');
+                const filterButtonsContainer = document.getElementById('filter-buttons');
 
                 cryptocurrencies.forEach(crypto => {
                     const trends = calculateTrends(crypto);
-                    const option = document.createElement('option');
-                    option.value = crypto.name.toLowerCase();
-                    option.innerText = crypto.name;
-                    filterSelect.appendChild(option);
+                    const button = document.createElement('button');
+                    button.classList.add('filter-button');
+                    button.dataset.cryptoName = crypto.name.toLowerCase();
+                    button.innerText = crypto.name;
+                    filterButtonsContainer.appendChild(button);
 
                     const row = document.createElement('tr');
                     row.dataset.cryptoName = crypto.name.toLowerCase();
@@ -220,17 +235,20 @@
         }
 
         function addFilterFunctionality() {
-            const filterSelect = document.getElementById('filter');
-            filterSelect.addEventListener('change', function () {
-                const selectedOptions = Array.from(filterSelect.selectedOptions).map(option => option.value);
-                const rows = document.querySelectorAll('#crypto-table-body tr');
-                rows.forEach(row => {
-                    const cryptoName = row.dataset.cryptoName;
-                    if (selectedOptions.includes(cryptoName)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+            const filterButtons = document.querySelectorAll('.filter-button');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    button.classList.toggle('active');
+                    const selectedCryptos = Array.from(document.querySelectorAll('.filter-button.active')).map(button => button.dataset.cryptoName);
+                    const rows = document.querySelectorAll('#crypto-table-body tr');
+                    rows.forEach(row => {
+                        const cryptoName = row.dataset.cryptoName;
+                        if (selectedCryptos.length === 0 || selectedCryptos.includes(cryptoName)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
                 });
             });
         }
