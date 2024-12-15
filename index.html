@@ -257,19 +257,19 @@
 
         function getBestCryptos(term, cryptocurrencies) {
             if (term === 'short-term') {
-                return cryptocurrencies.slice(0, 2).map((crypto, index) => ({
+                return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5
                 }));
             }
             if (term === 'medium-term') {
-                return cryptocurrencies.slice(5, 7).map((crypto, index) => ({
+                return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5
                 }));
             }
             if (term === 'long-term') {
-                return cryptocurrencies.slice(10, 12).map((crypto, index) => ({
+                return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
                     name: crypto.name,
                     percentage: 30 - index * 5
                 }));
@@ -284,13 +284,13 @@
         }
 
         function generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos) {
-            return shortTermCryptos.map(crypto => {
+            return shortTermCryptos.slice(0, 2).map(crypto => {
                 const sources = getSourcesForCrypto(crypto.name);
                 return `<b>${crypto.name} (Corto Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
-            }).concat(mediumTermCryptos.map(crypto => {
+            }).concat(mediumTermCryptos.slice(0, 2).map(crypto => {
                 const sources = getSourcesForCrypto(crypto.name);
                 return `<b>${crypto.name} (Medio Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
-            })).concat(longTermCryptos.map(crypto => {
+            })).concat(longTermCryptos.slice(0, 2).map(crypto => {
                 const sources = getSourcesForCrypto(crypto.name);
                 return `<b>${crypto.name} (Largo Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
             })).join('<br>');
