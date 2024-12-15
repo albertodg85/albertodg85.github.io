@@ -109,10 +109,6 @@
                 <p id="long-term-recommendation">Recomendaciones...</p>
             </div>
         </div>
-        <div id="ai-explanation">
-            <h2>Motivo de Inversión en las Criptomonedas Recomendadas</h2>
-            <p id="ai-explanation-content">Explicaciones generadas por IA...</p>
-        </div>
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter" placeholder="Filtrar...">
         <table>
@@ -127,6 +123,9 @@
                     <th data-field="market_cap">Market Cap</th>
                     <th data-field="total_volume">Volume(24h)</th>
                     <th data-field="circulating_supply">Circulating Supply</th>
+                    <th data-field="short_term_trend">Tendencia Corto Plazo</th>
+                    <th data-field="medium_term_trend">Tendencia Medio Plazo</th>
+                    <th data-field="long_term_trend">Tendencia Largo Plazo</th>
                 </tr>
             </thead>
             <tbody id="crypto-table-body">
@@ -144,6 +143,9 @@
             <p><strong>Market Cap:</strong> Capitalización de mercado de la criptomoneda, calculada como el precio actual multiplicado por el total de monedas en circulación. Indica el tamaño y la relevancia de la criptomoneda en el mercado.</p>
             <p><strong>Volume(24h):</strong> Volumen de transacciones de la criptomoneda en las últimas 24 horas. Indica la actividad y liquidez de la criptomoneda.</p>
             <p><strong>Circulating Supply:</strong> Cantidad de monedas de la criptomoneda que están en circulación actualmente. Indica la disponibilidad de la criptomoneda en el mercado.</p>
+            <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (flecha verde para alza, flecha roja para baja).</p>
+            <p><strong>Tendencia Medio Plazo:</strong> Predicción de la tendencia del valor a medio plazo (flecha verde para alza, flecha roja para baja).</p>
+            <p><strong>Tendencia Largo Plazo:</strong> Predicción de la tendencia del valor a largo plazo (flecha verde para alza, flecha roja para baja).</p>
         </div>
     </div>
     <script>
@@ -173,17 +175,19 @@
                         <td>$${crypto.market_cap.toLocaleString()}</td>
                         <td>$${crypto.total_volume.toLocaleString()}</td>
                         <td>${crypto.circulating_supply.toLocaleString()}</td>
+                        <td class="${getTrendClass(crypto.short_term_trend)}">${getTrendArrow(crypto.short_term_trend)}</td>
+                        <td class="${getTrendClass(crypto.medium_term_trend)}">${getTrendArrow(crypto.medium_term_trend)}</td>
+                        <td class="${getTrendClass(crypto.long_term_trend)}">${getTrendArrow(crypto.long_term_trend)}</td>
                     `;
                     tbody.appendChild(row);
                 });
                 addFilterFunctionality();
                 addSortFunctionality();
-                updateRecommendations(cryptocurrencies);
             } catch (error) {
                 console.error('Error:', error);
                 const tbody = document.getElementById('crypto-table-body');
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="9">Error al obtener los datos de la API</td>`;
+                row.innerHTML = `<td colspan="12">Error al obtener los datos de la API</td>`;
                 tbody.appendChild(row);
             }
         }
@@ -239,6 +243,14 @@
             return Array.from(headers).findIndex(header => header.getAttribute('data-field') === field) + 1;
         }
 
+        function getTrendArrow(trend) {
+            return trend === "up" ? "⬆️" : "⬇️";
+        }
+
+        function getTrendClass(trend) {
+            return trend === "up" ? "positive" : "negative";
+        }
+
         document.getElementById('investment-amount').addEventListener('input', async function() {
             const amount = parseFloat(this.value);
             if (!isNaN(amount)) {
@@ -250,8 +262,6 @@
                 document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
                 document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
                 document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
-
-                document.getElementById('ai-explanation-content').innerHTML = generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos);
             }
         });
 
@@ -281,39 +291,6 @@
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
                 return `${crypto.name}: $${amount} (${crypto.percentage}%)`;
             }).join('<br>');
-        }
-
-        function generateAIExplanation(shortTermCryptos, mediumTermCryptos, longTermCryptos) {
-            return shortTermCryptos.slice(0, 2).map(crypto => {
-                const sources = getSourcesForCrypto(crypto.name);
-                return `<b>${crypto.name} (Corto Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
-            }).concat(mediumTermCryptos.slice(0, 2).map(crypto => {
-                const sources = getSourcesForCrypto(crypto.name);
-                return `<b>${crypto.name} (Medio Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
-            })).concat(longTermCryptos.slice(0, 2).map(crypto => {
-                const sources = getSourcesForCrypto(crypto.name);
-                return `<b>${crypto.name} (Largo Plazo):</b> ${generateDetailedExplanation(crypto.name)}<br><b>Sources:</b> ${sources.join(', ')}`;
-            })).join('<br>');
-        }
-
-        function getSourcesForCrypto(cryptoName) {
-            // Placeholder function to simulate fetching sources for a given cryptocurrency
-            return ["Source 1", "Source 2", "Source 3"];
-        }
-
-        function generateDetailedExplanation(cryptoName) {
-            // Placeholder function to simulate generating a detailed explanation for a given cryptocurrency
-            return `La criptomoneda ${cryptoName} se recomienda debido a su sólido rendimiento histórico, innovaciones tecnológicas y adopción en el mercado.`;
-        }
-
-        async function updateRecommendations(cryptocurrencies) {
-            const shortTermCryptos = getBestCryptos('short-term', cryptocurrencies);
-            const mediumTermCryptos = getBestCryptos('medium-term', cryptocurrencies);
-            const longTermCryptos = getBestCryptos('long-term', cryptocurrencies);
-
-            document.getElementById('chatgpt-short-term').innerHTML = shortTermCryptos.map(crypto => `<li>${crypto.name}: ${crypto.percentage}%</li>`).join('');
-            document.getElementById('chatgpt-medium-term').innerHTML = mediumTermCryptos.map(crypto => `<li>${crypto.name}: ${crypto.percentage}%</li>`).join('');
-            document.getElementById('chatgpt-long-term').innerHTML = longTermCryptos.map(crypto => `<li>${crypto.name}: ${crypto.percentage}%</li>`).join('');
         }
 
         displayCryptocurrencies();
