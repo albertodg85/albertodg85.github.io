@@ -301,8 +301,8 @@
         function sortTable(field, isDescending) {
             const rows = Array.from(document.querySelectorAll('#crypto-table-body tr'));
             rows.sort((a, b) => {
-                const cellA = a.querySelector(`td:nth-child(${getColumnIndex(field)})`).textContent;
-                const cellB = b.querySelector(`td:nth-child(${getColumnIndex(field)})`).textContent;
+                const cellA = a.querySelector(`td[data-field='${field}']`).textContent;
+                const cellB = b.querySelector(`td[data-field='${field}']`).textContent;
                 if (!isNaN(cellA) && !isNaN(cellB)) {
                     return isDescending ? cellB - cellA : cellA - cellB;
                 }
