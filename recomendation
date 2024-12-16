@@ -1,1 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recomendaciones de Inversión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .recommendation {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .expected-profit {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recomendaciones de Inversión</h1>
+        <div class="recommendation" id="short-term">
+            <h2>Inversión a Corto Plazo</h2>
+            <p id="short-term-recommendation">Recomendaciones...</p>
+        </div>
+        <div class="recommendation" id="medium-term">
+            <h2>Inversión a Medio Plazo</h2>
+            <p id="medium-term-recommendation">Recomendaciones...</p>
+        </div>
+        <div class="recommendation" id="long-term">
+            <h2>Inversión a Largo Plazo</h2>
+            <p id="long-term-recommendation">Recomendaciones...</p>
+        </div>
+    </div>
 
+    <script>
+        async function fetchCryptocurrencies() {
+            const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d');
+            if (!response.ok) {
+                throw new Error('Error al obtener los datos de la API');
+            }
+            const data = await response.json();
+            return data;
+        }
+
+        function calculateTrends(crypto) {
+            function getRandomTrend() {
+                const randomValue = Math.random();
+                if (randomValue > 0.7) return { trend: "up", percentage: (Math.random() * 10).toFixed(2) };
+                if (randomValue < 0.3) return { trend: "down", percentage: -(Math.random() * 10).toFixed(2) };
+                return { trend: "neutral", percentage: (Math.random() * 2 - 1).toFixed(2) };
+            }
+            return {
+                short_term_trend: getRandomTrend(),
+                medium_term_trend: getRandomTrend(),
+                long_term_trend: getRandomTrend()
+            };
+        }
+
+        async function displayRecommendations() {
+            const cryptocurrencies = await fetchCryptocurrencies();
+            const amount = 1000; // Example investment amount
+
+            const shortTermCryptos = getBestCryptos('short-term', cryptocurrencies);
+            const mediumTermCryptos = getBestCryptos('medium-term', cryptocurrencies);
+            const longTermCryptos = getBestCryptos('long-term', cryptocurrencies);
+
+            document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
+            document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
+            document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
+        }
+
+        function getBestCryptos(term, cryptocurrencies) {
+            if (term === 'short-term') {
+                return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
+                    name: crypto.name,
+                    percentage: 30 - index * 5,
+                    expectedProfit: (Math.random() * 10).toFixed(2)
+                }));
+            }
+            if (term === 'medium-term') {
+                return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
+                    name: crypto.name,
+                    percentage: 30 - index * 5,
+                    expectedProfit: (Math.random() * 10).toFixed(2)
+                }));
+            }
+            if (term === 'long-term') {
+                return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
+                    name: crypto.name,
+                    percentage: 30 - index * 5,
+                    expectedProfit: (Math.random() * 10).toFixed(2)
+                }));
+            }
+        }
+
+        function generateRecommendations(cryptos, totalAmount) {
+            return cryptos.map(crypto => {
+                const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
+                return `${crypto.name}: $${amount} <span class="expected-profit">(Expected Profit: ${crypto.expectedProfit}%)</span>`;
+            }).join('<br>');
+        }
+
+        displayRecommendations();
+    </script>
+</body>
+</html>
