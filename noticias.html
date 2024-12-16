@@ -4,16 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto News Summary</title>
+    <script>
+        async function fetchRSS() {
+            const response = await fetch('https://cors-anywhere.herokuapp.com/https://cryptonews.com/news/rss.xml');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(text, 'text/xml');
+            const items = xml.querySelectorAll('item');
+            const newsList = document.getElementById('news-list');
+
+            items.forEach(item => {
+                const title = item.querySelector('title').textContent;
+                const link = item.querySelector('link').textContent;
+                const description = item.querySelector('description').textContent;
+
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<a href="${link}">${title}</a><p>${description}</p>`;
+                newsList.appendChild(listItem);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchRSS);
+    </script>
 </head>
 <body>
     <h1>Crypto News Summary</h1>
-    <ul>
-        <li><a href="http://www.oreillynet.com/lpt/a/2594">HighWLAN: A Driving Wireless Network</a></li>
-        <li><a href="http://www.math.columbia.edu/~bayer/">Dave Bayer, the math advisor for A Beautiful Mind</a></li>
-        <li><a href="http://www.dontlink.com/">Don’t link to us!</a></li>
-        <li><a href="http://satn.org/archive/2002_07_28_archive.html#85310732">NSA Blocked Internet Crypto</a></li>
-        <li><a href="http://www.wired.com/news/print/0,1294,54304,00.html">Women of Defcon</a></li>
-        <li><a href="http://www.petemoss.com/spamflames/ShifmanIsAMoronSpammer.html">Bernard Shifman spam</a></li>
+    <ul id="news-list">
+        <!-- News items will be dynamically inserted here -->
     </ul>
 </body>
 </html>
