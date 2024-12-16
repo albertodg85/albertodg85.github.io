@@ -130,20 +130,6 @@
                 <p id="long-term-recommendation">Recomendaciones...</p>
             </div>
         </div>
-        <div class="investment-recommendations">
-            <div class="recommendation" id="altcoin">
-                <h2>Recomendaciones de Altcoins</h2>
-                <p id="altcoin-recommendation">Recomendaciones...</p>
-            </div>
-            <div class="recommendation" id="stablecoin">
-                <h2>Recomendaciones de Stablecoins</h2>
-                <p id="stablecoin-recommendation">Recomendaciones...</p>
-            </div>
-            <div class="recommendation" id="memecoin">
-                <h2>Recomendaciones de Memecoins</h2>
-                <p id="memecoin-recommendation">Recomendaciones...</p>
-            </div>
-        </div>
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter-input" class="filter-input" placeholder="Escribe el nombre de una criptomoneda">
         <div class="selected-filters" id="selected-filters"></div>
@@ -176,7 +162,7 @@
             <p><strong>Cambio 1h (%):</strong> Porcentaje de cambio en el precio de la criptomoneda en la última hora. Indica la volatilidad a corto plazo.</p>
             <p><strong>Cambio 24h (%):</strong> Porcentaje de cambio en el precio de la criptomoneda en las últimas 24 horas. Indica la volatilidad diaria.</p>
             <p><strong>Cambio 7d (%):</strong> Porcentaje de cambio en el precio de la criptomoneda en los últimos 7 días. Indica la tendencia semanal.</p>
-            <p><strong>Market Cap:</strong> Capitalización de mercado de la criptomoneda, calculada como el precio actual multiplicado por el total de monedas en circulación. Indica el tamaño y la [...]
+            <p><strong>Market Cap:</strong> Capitalización de mercado de la criptomoneda, calculada como el precio actual multiplicado por el total de monedas en circulación. Indica el tamaño y la relevancia de la criptomoneda en el mercado.</p>
             <p><strong>Volume (24h):</strong> Volumen de transacciones de la criptomoneda en las últimas 24 horas. Indica la actividad y liquidez de la criptomoneda.</p>
             <p><strong>Circulating Supply:</strong> Cantidad de monedas de la criptomoneda que están en circulación actualmente. Indica la disponibilidad de la criptomoneda en el mercado.</p>
             <p><strong>Tendencia Corto Plazo:</strong> Predicción de la tendencia del valor a corto plazo (verde para alza, rojo para baja, azul para no cambios significativos).</p>
@@ -339,10 +325,6 @@
                 document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
                 document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
                 document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
-
-                document.getElementById('altcoin-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
-                document.getElementById('stablecoin-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
-                document.getElementById('memecoin-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
             }
         });
 
