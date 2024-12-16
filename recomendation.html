@@ -98,24 +98,24 @@
 
         function getBestCryptos(term, cryptocurrencies) {
             if (term === 'short-term') {
-                return cryptocurrencies.slice(0, 5).map((crypto, index) => ({
+                return cryptocurrencies.slice(0, 10).sort((a, b) => b.price_change_percentage_1h_in_currency - a.price_change_percentage_1h_in_currency).map((crypto, index) => ({
                     name: crypto.name,
-                    percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2)
+                    percentage: 30 - index * 3,
+                    expectedProfit: (crypto.price_change_percentage_1h_in_currency * 10).toFixed(2)
                 }));
             }
             if (term === 'medium-term') {
-                return cryptocurrencies.slice(5, 10).map((crypto, index) => ({
+                return cryptocurrencies.slice(0, 10).sort((a, b) => b.price_change_percentage_24h_in_currency - a.price_change_percentage_24h_in_currency).map((crypto, index) => ({
                     name: crypto.name,
-                    percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2)
+                    percentage: 30 - index * 3,
+                    expectedProfit: (crypto.price_change_percentage_24h_in_currency * 10).toFixed(2)
                 }));
             }
             if (term === 'long-term') {
-                return cryptocurrencies.slice(10, 15).map((crypto, index) => ({
+                return cryptocurrencies.slice(0, 10).sort((a, b) => b.price_change_percentage_7d_in_currency - a.price_change_percentage_7d_in_currency).map((crypto, index) => ({
                     name: crypto.name,
-                    percentage: 30 - index * 5,
-                    expectedProfit: (Math.random() * 10).toFixed(2)
+                    percentage: 30 - index * 3,
+                    expectedProfit: (crypto.price_change_percentage_7d_in_currency * 10).toFixed(2)
                 }));
             }
         }
