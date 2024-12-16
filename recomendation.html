@@ -37,24 +37,33 @@
             font-style: italic;
             color: #555;
         }
+        .crypto-chart {
+            margin: 20px 0;
+        }
+        .crypto-analysis {
+            margin-top: 10px;
+            font-style: italic;
+            color: #555;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Recomendaciones de Inversión</h1>
         <div class="recommendation" id="short-term">
             <h2>Inversión a Corto Plazo</h2>
-            <p id="short-term-recommendation">Recomendaciones...</p>
+            <div id="short-term-recommendation"></div>
             <p class="explanation">Estas recomendaciones se basan en tendencias recientes del mercado y volatilidad a corto plazo, con el objetivo de obtener beneficios rápidos.</p>
         </div>
         <div class="recommendation" id="medium-term">
             <h2>Inversión a Medio Plazo</h2>
-            <p id="medium-term-recommendation">Recomendaciones...</p>
+            <div id="medium-term-recommendation"></div>
             <p class="explanation">Estas recomendaciones consideran tanto las tendencias actuales como las proyecciones a medio plazo, equilibrando riesgos y posibles retornos.</p>
         </div>
         <div class="recommendation" id="long-term">
             <h2>Inversión a Largo Plazo</h2>
-            <p id="long-term-recommendation">Recomendaciones...</p>
+            <div id="long-term-recommendation"></div>
             <p class="explanation">Estas recomendaciones están basadas en análisis fundamentales y proyecciones de crecimiento a largo plazo, priorizando la estabilidad y el rendimiento sostenido.</p>
         </div>
     </div>
@@ -69,18 +78,42 @@
             return data;
         }
 
-        function calculateTrends(crypto) {
-            function getRandomTrend() {
-                const randomValue = Math.random();
-                if (randomValue > 0.7) return { trend: "up", percentage: (Math.random() * 10).toFixed(2) };
-                if (randomValue < 0.3) return { trend: "down", percentage: -(Math.random() * 10).toFixed(2) };
-                return { trend: "neutral", percentage: (Math.random() * 2 - 1).toFixed(2) };
+        async function fetchCandlestickData(id) {
+            const response = await fetch(`https://api.coingecko.com/api/v3/coins/${id}/ohlc?vs_currency=usd&days=7`);
+            if (!response.ok) {
+                throw new Error('Error al obtener los datos de velas');
             }
-            return {
-                short_term_trend: getRandomTrend(),
-                medium_term_trend: getRandomTrend(),
-                long_term_trend: getRandomTrend()
-            };
+            const data = await response.json();
+            return data.map(item => ({
+                x: item[0],
+                o: item[1],
+                h: item[2],
+                l: item[3],
+                c: item[4]
+            }));
+        }
+
+        function createChart(ctx, data) {
+            new Chart(ctx, {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: 'Price',
+                        data: data
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         async function displayRecommendations() {
@@ -91,14 +124,15 @@
             const mediumTermCryptos = getBestCryptos('medium-term', cryptocurrencies);
             const longTermCryptos = getBestCryptos('long-term', cryptocurrencies);
 
-            document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
-            document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
-            document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
+            await generateRecommendations('short-term-recommendation', shortTermCryptos, amount * 0.3);
+            await generateRecommendations('medium-term-recommendation', mediumTermCryptos, amount * 0.4);
+            await generateRecommendations('long-term-recommendation', longTermCryptos, amount * 0.3);
         }
 
         function getBestCryptos(term, cryptocurrencies) {
             if (term === 'short-term') {
                 return cryptocurrencies.slice(0, 10).sort((a, b) => b.price_change_percentage_1h_in_currency - a.price_change_percentage_1h_in_currency).map((crypto, index) => ({
+                    id: crypto.id,
                     name: crypto.name,
                     percentage: 30 - index * 3,
                     expectedProfit: (crypto.price_change_percentage_1h_in_currency * 10).toFixed(2)
@@ -106,6 +140,7 @@
             }
             if (term === 'medium-term') {
                 return cryptocurrencies.slice(0, 10).sort((a, b) => b.price_change_percentage_24h_in_currency - a.price_change_percentage_24h_in_currency).map((crypto, index) => ({
+                    id: crypto.id,
                     name: crypto.name,
                     percentage: 30 - index * 3,
                     expectedProfit: (crypto.price_change_percentage_24h_in_currency * 10).toFixed(2)
@@ -113,6 +148,7 @@
             }
             if (term === 'long-term') {
                 return cryptocurrencies.slice(0, 10).sort((a, b) => b.price_change_percentage_7d_in_currency - a.price_change_percentage_7d_in_currency).map((crypto, index) => ({
+                    id: crypto.id,
                     name: crypto.name,
                     percentage: 30 - index * 3,
                     expectedProfit: (crypto.price_change_percentage_7d_in_currency * 10).toFixed(2)
@@ -120,11 +156,31 @@
             }
         }
 
-        function generateRecommendations(cryptos, totalAmount) {
-            return cryptos.map(crypto => {
+        async function generateRecommendations(elementId, cryptos, totalAmount) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            for (let crypto of cryptos) {
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
-                return `${crypto.name}: $${amount} <span class="expected-profit">(Expected Profit: ${crypto.expectedProfit}%)</span>`;
-            }).join('<br>');
+                const chartId = `${crypto.id}-chart`;
+                const analysisId = `${crypto.id}-analysis`;
+
+                const cryptoElement = document.createElement('div');
+                cryptoElement.innerHTML = `
+                    <h3>${crypto.name}</h3>
+                    <p>${crypto.name}: $${amount} <span class="expected-profit">(Expected Profit: ${crypto.expectedProfit}%)</span></p>
+                    <div class="crypto-chart">
+                        <canvas id="${chartId}"></canvas>
+                    </div>
+                    <p class="crypto-analysis" id="${analysisId}">Análisis...</p>
+                `;
+                container.appendChild(cryptoElement);
+
+                const candlestickData = await fetchCandlestickData(crypto.id);
+                const ctx = document.getElementById(chartId).getContext('2d');
+                createChart(ctx, candlestickData);
+                document.getElementById(analysisId).innerText = `Análisis de ${crypto.name}: ...`;
+            }
         }
 
         displayRecommendations();
