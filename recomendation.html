@@ -126,7 +126,7 @@
                 cryptoElement.innerHTML = `
                     <h3>${crypto.name}</h3>
                     <p>${crypto.name}: $${amount} <span class="expected-profit">(Expected Profit: ${crypto.expectedProfit}%)</span></p>
-                    <p class="crypto-analysis" id="${analysisId}">Análisis de ${crypto.name}: ...</p>
+                    <p class="crypto-analysis" id="${analysisId}">Análisis de ${crypto.name}: La tendencia de ${crypto.name} en el último período ha mostrado un cambio del ${crypto.expectedProfit}%.</p>
                 `;
                 container.appendChild(cryptoElement);
             }
