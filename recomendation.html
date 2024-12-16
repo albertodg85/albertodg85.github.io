@@ -85,7 +85,7 @@
             }
             const data = await response.json();
             return data.map(item => ({
-                x: item[0],
+                x: new Date(item[0]).toISOString(),
                 o: item[1],
                 h: item[2],
                 l: item[3],
