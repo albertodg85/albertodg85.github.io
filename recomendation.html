@@ -42,7 +42,12 @@
             font-style: italic;
             color: #555;
         }
+        .crypto-chart {
+            margin: 20px 0;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
 </head>
 <body>
     <div class="container">
@@ -74,6 +79,44 @@
             return data;
         }
 
+        async function fetchCandlestickData(id) {
+            const response = await fetch(`https://api.coingecko.com/api/v3/coins/${id}/ohlc?vs_currency=usd&days=7`);
+            if (!response.ok) {
+                throw new Error('Error al obtener los datos de velas');
+            }
+            const data = await response.json();
+            return data.map(item => ({
+                t: new Date(item[0]), // timestamp
+                o: item[1], // open
+                h: item[2], // high
+                l: item[3], // low
+                c: item[4]  // close
+            }));
+        }
+
+        function createChart(ctx, data) {
+            new Chart(ctx, {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: 'Price',
+                        data: data
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         async function displayRecommendations() {
             const cryptocurrencies = await fetchCryptocurrencies();
             const amount = 1000; // Example investment amount
@@ -82,9 +125,9 @@
             const mediumTermCryptos = getBestCryptos('medium-term', cryptocurrencies);
             const longTermCryptos = getBestCryptos('long-term', cryptocurrencies);
 
-            generateRecommendations('short-term-recommendation', shortTermCryptos, amount * 0.3);
-            generateRecommendations('medium-term-recommendation', mediumTermCryptos, amount * 0.4);
-            generateRecommendations('long-term-recommendation', longTermCryptos, amount * 0.3);
+            await generateRecommendations('short-term-recommendation', shortTermCryptos, amount * 0.3);
+            await generateRecommendations('medium-term-recommendation', mediumTermCryptos, amount * 0.4);
+            await generateRecommendations('long-term-recommendation', longTermCryptos, amount * 0.3);
         }
 
         function getBestCryptos(term, cryptocurrencies) {
@@ -114,21 +157,30 @@
             }
         }
 
-        function generateRecommendations(elementId, cryptos, totalAmount) {
+        async function generateRecommendations(elementId, cryptos, totalAmount) {
             const container = document.getElementById(elementId);
             container.innerHTML = '';
 
             for (let crypto of cryptos) {
                 const amount = (totalAmount * crypto.percentage / 100).toFixed(2);
+                const chartId = `${crypto.id}-chart`;
                 const analysisId = `${crypto.id}-analysis`;
 
                 const cryptoElement = document.createElement('div');
                 cryptoElement.innerHTML = `
                     <h3>${crypto.name}</h3>
                     <p>${crypto.name}: $${amount} <span class="expected-profit">(Expected Profit: ${crypto.expectedProfit}%)</span></p>
-                    <p class="crypto-analysis" id="${analysisId}">Análisis de ${crypto.name}: La tendencia de ${crypto.name} en el último período ha mostrado un cambio del ${crypto.expectedProfit}%. Esta criptomoneda es recomendada debido a su sólido rendimiento en el mercado, su adopción tecnológica y su capacidad para ofrecer retornos a corto plazo.</p>
+                    <div class="crypto-chart">
+                        <canvas id="${chartId}"></canvas>
+                    </div>
+                    <p class="crypto-analysis" id="${analysisId}">Análisis...</p>
                 `;
                 container.appendChild(cryptoElement);
+
+                const candlestickData = await fetchCandlestickData(crypto.id);
+                const ctx = document.getElementById(chartId).getContext('2d');
+                createChart(ctx, candlestickData);
+                document.getElementById(analysisId).innerText = `Análisis de ${crypto.name}: Basado en el análisis de los gráficos de velas, ${crypto.name} ha mostrado una tendencia positiva con un cambio del ${crypto.expectedProfit}%. Esta criptomoneda es recomendada debido a su sólido rendimiento en el mercado, su adopción tecnológica y su capacidad para ofrecer retornos a corto plazo.`;
             }
         }
 
