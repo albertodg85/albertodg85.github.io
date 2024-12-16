@@ -47,6 +47,7 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
 </head>
 <body>
     <div class="container">
@@ -85,11 +86,11 @@
             }
             const data = await response.json();
             return data.map(item => ({
-                x: new Date(item[0]).toISOString(),
-                o: item[1],
-                h: item[2],
-                l: item[3],
-                c: item[4]
+                t: new Date(item[0]), // timestamp
+                o: item[1], // open
+                h: item[2], // high
+                l: item[3], // low
+                c: item[4]  // close
             }));
         }
 
