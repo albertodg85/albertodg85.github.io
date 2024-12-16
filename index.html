@@ -339,6 +339,10 @@
                 document.getElementById('short-term-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
                 document.getElementById('medium-term-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
                 document.getElementById('long-term-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
+
+                document.getElementById('altcoin-recommendation').innerHTML = generateRecommendations(shortTermCryptos, amount * 0.3);
+                document.getElementById('stablecoin-recommendation').innerHTML = generateRecommendations(mediumTermCryptos, amount * 0.4);
+                document.getElementById('memecoin-recommendation').innerHTML = generateRecommendations(longTermCryptos, amount * 0.3);
             }
         });
 
