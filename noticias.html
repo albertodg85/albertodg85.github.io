@@ -6,22 +6,29 @@
     <title>Crypto News Summary</title>
     <script>
         async function fetchRSS() {
-            const response = await fetch('https://cors-anywhere.herokuapp.com/https://cryptonews.com/news/rss.xml');
-            const text = await response.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, 'text/xml');
-            const items = xml.querySelectorAll('item');
-            const newsList = document.getElementById('news-list');
+            try {
+                const response = await fetch('https://cors-anywhere.herokuapp.com/https://cryptonews.com/news/rss.xml');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const text = await response.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(text, 'text/xml');
+                const items = xml.querySelectorAll('item');
+                const newsList = document.getElementById('news-list');
 
-            items.forEach(item => {
-                const title = item.querySelector('title').textContent;
-                const link = item.querySelector('link').textContent;
-                const description = item.querySelector('description').textContent;
+                items.forEach(item => {
+                    const title = item.querySelector('title').textContent;
+                    const link = item.querySelector('link').textContent;
+                    const description = item.querySelector('description').textContent;
 
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `<a href="${link}">${title}</a><p>${description}</p>`;
-                newsList.appendChild(listItem);
-            });
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<a href="${link}">${title}</a><p>${description}</p>`;
+                    newsList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching the RSS feed:', error);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', fetchRSS);
