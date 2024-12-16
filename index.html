@@ -130,6 +130,20 @@
                 <p id="long-term-recommendation">Recomendaciones...</p>
             </div>
         </div>
+        <div class="investment-recommendations">
+            <div class="recommendation" id="altcoin">
+                <h2>Recomendaciones de Altcoins</h2>
+                <p id="altcoin-recommendation">Recomendaciones...</p>
+            </div>
+            <div class="recommendation" id="stablecoin">
+                <h2>Recomendaciones de Stablecoins</h2>
+                <p id="stablecoin-recommendation">Recomendaciones...</p>
+            </div>
+            <div class="recommendation" id="memecoin">
+                <h2>Recomendaciones de Memecoins</h2>
+                <p id="memecoin-recommendation">Recomendaciones...</p>
+            </div>
+        </div>
         <h1>Lista de Cryptomonedas</h1>
         <input type="text" id="filter-input" class="filter-input" placeholder="Escribe el nombre de una criptomoneda">
         <div class="selected-filters" id="selected-filters"></div>
@@ -216,9 +230,9 @@
                         <td><img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon"></td>
                         <td data-field="name">${crypto.name}</td>
                         <td data-field="current_price">$${crypto.current_price}</td>
-                        <td data-field="price_change_percentage_1h_in_currency" class="${crypto.price_change_percentage_1h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_1h_in_currency ? crypto.price_change_percentage_1h_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <td data-field="price_change_percentage_24h_in_currency" class="${crypto.price_change_percentage_24h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_24h_in_currency ? crypto.price_change_percentage_24h_in_currency.toFixed(2) : 'N/A'}%</td>
-                        <td data-field="price_change_percentage_7d_in_currency" class="${crypto.price_change_percentage_7d_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_7d_in_currency ? crypto.price_change_percentage_7d_in_currency.toFixed(2) : 'N/A'}%</td>
+                        <td data-field="price_change_percentage_1h_in_currency" class="${crypto.price_change_percentage_1h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_1h_in_currency.toFixed(2)}%</td>
+                        <td data-field="price_change_percentage_24h_in_currency" class="${crypto.price_change_percentage_24h_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_24h_in_currency.toFixed(2)}%</td>
+                        <td data-field="price_change_percentage_7d_in_currency" class="${crypto.price_change_percentage_7d_in_currency > 0 ? 'positive' : 'negative'}">${crypto.price_change_percentage_7d_in_currency.toFixed(2)}%</td>
                         <td data-field="market_cap">$${crypto.market_cap.toLocaleString()}</td>
                         <td data-field="total_volume">$${crypto.total_volume.toLocaleString()}</td>
                         <td data-field="circulating_supply">${crypto.circulating_supply.toLocaleString()}</td>
