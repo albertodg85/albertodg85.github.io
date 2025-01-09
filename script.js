@@ -99,19 +99,23 @@ function sortData(data, sortKey) {
         let valueA = a[field];
         let valueB = b[field];
 
+        // Manejar valores nulos o indefinidos
+        if (valueA === null || valueA === undefined) valueA = -Infinity; // Considerar nulos/indefinidos como los valores más bajos
+        if (valueB === null || valueB === undefined) valueB = -Infinity; // Considerar nulos/indefinidos como los valores más bajos
+
         // Manejar casos especiales para la ordenación
-        if (field === 'name') {
-          valueA = valueA.toLowerCase();
-          valueB = valueB.toLowerCase();
+        if (field === 'name' || field === 'symbol') {
+            valueA = valueA.toLowerCase();
+            valueB = valueB.toLowerCase();
         } else if (field === 'current_price' || field === 'market_cap' || field === 'total_volume') {
-          valueA = Number(valueA);
-          valueB = Number(valueB);
+            valueA = Number(valueA);
+            valueB = Number(valueB);
         }
 
         if (order === 'asc') {
-            return valueA > valueB ? 1 : -1;
+            return valueA - valueB; // Orden ascendente
         } else {
-            return valueA < valueB ? 1 : -1;
+            return valueB - valueA; // Orden descendente (invertido)
         }
     });
     console.log('Resultado de la ordenación:', result);
