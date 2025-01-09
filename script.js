@@ -36,6 +36,9 @@ async function getCryptoData() {
 
 // Función para mostrar los datos en la tabla
 function displayCryptoData(data, trendingCoins) {
+  console.log('Entrando en displayCryptoData');
+  console.log('Datos a mostrar:', data);
+  console.log('Monedas en tendencia:', trendingCoins);
   cryptoTable.innerHTML = '';
 
   data.forEach(coin => {
@@ -67,22 +70,31 @@ function displayCryptoData(data, trendingCoins) {
       change24hCell.style.color = 'red';
     }
   });
+  console.log('Saliendo de displayCryptoData');
 }
 
 // Función para filtrar los datos
 function filterData(data, searchTerm) {
-    return data.filter(coin => {
+    console.log('Entrando en filterData');
+    console.log('Datos a filtrar:', data);
+    console.log('Término de búsqueda:', searchTerm);
+    const result = data.filter(coin => {
         const name = coin.name.toLowerCase();
         const symbol = coin.symbol.toLowerCase();
         return name.includes(searchTerm) || symbol.includes(searchTerm);
     });
+    console.log('Resultado del filtrado:', result);
+    return result;
 }
 
 // Función para ordenar los datos
 function sortData(data, sortKey) {
+    console.log('Entrando en sortData');
+    console.log('Datos a ordenar:', data);
+    console.log('Clave de ordenación:', sortKey);
     const [field, order] = sortKey.split('_');
 
-    return data.sort((a, b) => {
+    const result = data.sort((a, b) => {
         let valueA = a[field];
         let valueB = b[field];
 
@@ -101,10 +113,13 @@ function sortData(data, sortKey) {
             return valueA < valueB ? 1 : -1;
         }
     });
+    console.log('Resultado de la ordenación:', result);
+    return result;
 }
 
 // Función principal para cargar y mostrar los datos
 async function loadAndDisplayData() {
+  console.log('Entrando en loadAndDisplayData');
   try {
     loadingMessage.style.display = 'block';
     cryptoTable.style.display = 'none';
@@ -113,6 +128,9 @@ async function loadAndDisplayData() {
       getCryptoData(),
       getTrendingCoins()
     ]);
+
+    console.log('Datos de cryptoData:', cryptoData);
+    console.log('Datos de trendingCoins:', trendingCoins);
 
     let filteredData = cryptoData;
     const searchTerm = filterInput.value.toLowerCase();
@@ -133,25 +151,18 @@ async function loadAndDisplayData() {
   } finally {
     loadingMessage.style.display = 'none';
     cryptoTable.style.display = 'table';
+    console.log('Saliendo de loadAndDisplayData');
   }
 }
 
 // Evento 'input' para el campo de filtro
 filterInput.addEventListener('input', () => {
-  const trendingCoins = getTrendingCoins(); // Obtener las monedas en tendencia
-  const filteredData = filterData(cryptoDataCache, filterInput.value.toLowerCase());
-  const sortKey = sortSelect.value;
-  const sortedData = sortData(filteredData, sortKey);
-  displayCryptoData(sortedData, trendingCoins); // Pasar las monedas en tendencia a la función
+  loadAndDisplayData();
 });
 
 // Evento 'change' para el select de ordenación
 sortSelect.addEventListener('change', () => {
-  const trendingCoins = getTrendingCoins(); // Obtener las monedas en tendencia
-  const filteredData = filterData(cryptoDataCache, filterInput.value.toLowerCase());
-  const sortKey = sortSelect.value;
-  const sortedData = sortData(filteredData, sortKey);
-  displayCryptoData(sortedData, trendingCoins); // Pasar las monedas en tendencia a la función
+  loadAndDisplayData();
 });
 
 // Cargar los datos al inicio
