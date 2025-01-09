@@ -71,6 +71,11 @@ function displayCryptoData(data, trendingCoins) {
     }
   });
   console.log('Saliendo de displayCryptoData');
+
+  // Verificar si la tabla tiene filas después de añadirlas
+  console.log('Número de filas en la tabla después de añadir datos:', cryptoTable.rows.length);
+  // Mostrar la pila de llamadas actual
+  console.trace();
 }
 
 // Función para filtrar los datos
