@@ -15,7 +15,25 @@
         <section>
             <h2>Listado de Criptomonedas</h2>
 
-            <table id="cryptoTable">
+            <div id="controls">
+                <label for="filter">Filtrar: </label>
+                <input type="text" id="filter" placeholder="Nombre o símbolo">
+
+                <label for="sort">Ordenar por: </label>
+                <select id="sort">
+                    <option value="market_cap_desc">Capitalización (Mayor a Menor)</option>
+                    <option value="market_cap_asc">Capitalización (Menor a Mayor)</option>
+                    <option value="current_price_desc">Precio (Mayor a Menor)</option>
+                    <option value="current_price_asc">Precio (Menor a Mayor)</option>
+                    <option value="name_asc">Nombre (A-Z)</option>
+                    <option value="name_desc">Nombre (Z-A)</option>
+                    <option value="volume_desc">Volumen 24h (Mayor a Menor)</option>
+                    <option value="volume_asc">Volumen 24h (Menor a Mayor)</option>
+                </select>
+            </div>
+
+            <div id="loading">Cargando datos...</div>
+            <table id="cryptoTable" style="display: none;">
                 <thead>
                     <tr>
                         <th>Símbolo</th>
