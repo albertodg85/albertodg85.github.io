@@ -1,5 +1,5 @@
-const apiUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=es';
-const trendingApiUrl = 'https://api.coingecko.com/api/v3/search/trending';
+const apiUrl = 'https://cors-anywhere.herokuapp.com/https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=es';
+const trendingApiUrl = 'https://cors-anywhere.herokuapp.com/https://api.coingecko.com/api/v3/search/trending';
 const cryptoTable = document.getElementById('cryptoTable');
 const cryptoTableBody = document.getElementById('cryptoTable').getElementsByTagName('tbody')[0];
 const loadingMessage = document.getElementById('loading');
@@ -100,22 +100,35 @@ function sortData(data, sortKey) {
         let valueB = b[field];
 
         // Manejar valores nulos o indefinidos
-        if (valueA === null || valueA === undefined) valueA = -Infinity; // Considerar nulos/indefinidos como los valores más bajos
-        if (valueB === null || valueB === undefined) valueB = -Infinity; // Considerar nulos/indefinidos como los valores más bajos
+        if (valueA === null || valueA === undefined) valueA = -Infinity;
+        if (valueB === null || valueB === undefined) valueB = -Infinity;
 
         // Manejar casos especiales para la ordenación
         if (field === 'name' || field === 'symbol') {
             valueA = valueA.toLowerCase();
             valueB = valueB.toLowerCase();
+            // Ordenación de cadenas
+            if (order === 'asc') {
+                return valueA.localeCompare(valueB);
+            } else {
+                return valueB.localeCompare(valueA);
+            }
         } else if (field === 'current_price' || field === 'market_cap' || field === 'total_volume') {
             valueA = Number(valueA);
             valueB = Number(valueB);
-        }
-
-        if (order === 'asc') {
-            return valueA - valueB; // Orden ascendente
+            // Ordenación numérica
+            if (order === 'asc') {
+                return valueA - valueB;
+            } else {
+                return valueB - valueA;
+            }
         } else {
-            return valueB - valueA; // Orden descendente (invertido)
+          // Ordenación por defecto (si el campo no se reconoce)
+          if (order === 'asc') {
+            return String(valueA).localeCompare(String(valueB));
+          } else {
+            return String(valueB).localeCompare(String(valueA));
+          }
         }
     });
     console.log('Resultado de la ordenación:', result);
