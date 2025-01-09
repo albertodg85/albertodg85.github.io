@@ -17,3 +17,25 @@ th, td {
 th {
     background-color: #f0f0f0;
 }
+
+#controls {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#controls label {
+    margin-right: 10px;
+}
+
+#controls input, #controls select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+#loading {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2em;
+}
