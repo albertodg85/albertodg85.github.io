@@ -7,7 +7,8 @@ async function getTrendingCoins() {
     try {
         const response = await fetch(trendingApiUrl);
         const data = await response.json();
-        return data.coins.map(coin => coin.item.id);
+        console.log("Monedas en tendencia:", data); // Imprimir las monedas en tendencia para verificar
+        return data.coins.map(coin => coin.item.symbol.toLowerCase()); // Usar el símbolo en minúsculas
     } catch (error) {
         console.error('Error fetching trending coins:', error);
         return [];
@@ -21,6 +22,8 @@ async function displayCryptoData() {
             fetch(apiUrl).then(response => response.json()),
             getTrendingCoins()
         ]);
+
+        console.log("Datos de criptomonedas:", cryptoData); // Imprimir los datos de las criptomonedas para verificar
 
         cryptoData.forEach(coin => {
             let row = cryptoTable.insertRow();
@@ -39,8 +42,8 @@ async function displayCryptoData() {
             change24hCell.textContent = coin.price_change_percentage_24h.toFixed(2) + '%';
             volume24hCell.textContent = coin.total_volume.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
-            // Marcar la moneda como en tendencia
-            if (trendingCoins.includes(coin.id)) {
+            // Marcar la moneda como en tendencia comparando símbolos
+            if (trendingCoins.includes(coin.symbol.toLowerCase())) {
                 trendCell.textContent = '🔥';
             } else {
                 trendCell.textContent = '';
