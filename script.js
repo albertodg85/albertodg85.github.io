@@ -124,24 +124,29 @@ async function loadAndDisplayData() {
     loadingMessage.style.display = 'block';
     cryptoTable.style.display = 'none';
 
-    const [cryptoData, trendingCoins] = await Promise.all([
-      getCryptoData(),
-      getTrendingCoins()
-    ]);
+    // Primero, obtenemos y almacenamos los datos de las criptomonedas
+    const cryptoData = await getCryptoData();
+    console.log('cryptoData después de getCryptoData:', cryptoData);
 
-    console.log('Datos de cryptoData:', cryptoData);
-    console.log('Datos de trendingCoins:', trendingCoins);
+    // Luego, obtenemos las monedas en tendencia
+    const trendingCoins = await getTrendingCoins();
+    console.log('trendingCoins después de getTrendingCoins:', trendingCoins);
 
+    // Filtramos y ordenamos los datos
     let filteredData = cryptoData;
     const searchTerm = filterInput.value.toLowerCase();
     if (searchTerm) {
       filteredData = filterData(filteredData, searchTerm);
+      console.log('filteredData después de filterData:', filteredData);
     }
 
     const sortKey = sortSelect.value;
     const sortedData = sortData(filteredData, sortKey);
+    console.log('sortedData después de sortData:', sortedData);
 
+    // Mostramos los datos en la tabla
     displayCryptoData(sortedData, trendingCoins);
+
   } catch (error) {
     console.error('Error al cargar los datos:', error);
     let row = cryptoTable.insertRow();
