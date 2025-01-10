@@ -1,5 +1,4 @@
-const apiUrl = 'https://cors-anywhere.herokuapp.com/https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=es';
-const trendingApiUrl = 'https://cors-anywhere.herokuapp.com/https://api.coingecko.com/api/v3/search/trending';
+const apiUrl = 'https://api.coincap.io/v2/assets'; // URL de la API de CoinCap
 const cryptoTable = document.getElementById('cryptoTable');
 const cryptoTableBody = document.getElementById('cryptoTable').getElementsByTagName('tbody')[0];
 const loadingMessage = document.getElementById('loading');
@@ -8,24 +7,12 @@ const sortSelect = document.getElementById('sort');
 
 let cryptoDataCache = []; // Variable global para almacenar los datos en caché
 
-// Función para obtener las monedas en tendencia
-async function getTrendingCoins() {
-    try {
-        const response = await fetch(trendingApiUrl);
-        const data = await response.json();
-        console.log("Monedas en tendencia:", data);
-        return data.coins.map(coin => coin.item.symbol.toLowerCase());
-    } catch (error) {
-        console.error('Error fetching trending coins:', error);
-        return [];
-    }
-}
-
 // Función para obtener los datos de las criptomonedas
 async function getCryptoData() {
   try {
     const response = await fetch(apiUrl);
-    const data = await response.json();
+    const dataWrapper = await response.json();
+    const data = dataWrapper.data; // Los datos están dentro de un objeto "data"
     console.log("Datos de criptomonedas:", data);
     cryptoDataCache = data; // Almacenar los datos en la caché
     return data;
@@ -36,10 +23,9 @@ async function getCryptoData() {
 }
 
 // Función para mostrar los datos en la tabla
-function displayCryptoData(data, trendingCoins) {
+function displayCryptoData(data) {
   console.log('Entrando en displayCryptoData');
   console.log('Datos a mostrar:', data);
-  console.log('Monedas en tendencia:', trendingCoins);
   cryptoTableBody.innerHTML = '';
 
   data.forEach(coin => {
@@ -50,24 +36,18 @@ function displayCryptoData(data, trendingCoins) {
     let marketCapCell = row.insertCell();
     let change24hCell = row.insertCell();
     let volume24hCell = row.insertCell();
-    let trendCell = row.insertCell();
 
-    symbolCell.textContent = coin.symbol.toUpperCase();
+    symbolCell.textContent = coin.symbol;
     nameCell.textContent = coin.name;
-    priceCell.textContent = coin.current_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    marketCapCell.textContent = coin.market_cap.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    change24hCell.textContent = coin.price_change_percentage_24h.toFixed(2) + '%';
-    volume24hCell.textContent = coin.total_volume.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    priceCell.textContent = Number(coin.priceUsd).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    marketCapCell.textContent = Number(coin.marketCapUsd).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    change24hCell.textContent = Number(coin.changePercent24Hr).toFixed(2) + '%';
+    volume24hCell.textContent = Number(coin.volumeUsd24Hr).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
-    if (trendingCoins.includes(coin.symbol.toLowerCase())) {
-      trendCell.textContent = '🔥';
-    } else {
-      trendCell.textContent = '';
-    }
-
-    if (coin.price_change_percentage_24h > 0) {
+    // Añadir color a la celda del cambio de precio en 24h
+    if (Number(coin.changePercent24Hr) > 0) {
       change24hCell.style.color = 'green';
-    } else if (coin.price_change_percentage_24h < 0) {
+    } else if (Number(coin.changePercent24Hr) < 0) {
       change24hCell.style.color = 'red';
     }
   });
@@ -113,7 +93,7 @@ function sortData(data, sortKey) {
             } else {
                 return valueB.localeCompare(valueA);
             }
-        } else if (field === 'current_price' || field === 'market_cap' || field === 'total_volume') {
+        } else if (field === 'priceUsd' || field === 'marketCapUsd' || field === 'volumeUsd24Hr') {
             valueA = Number(valueA);
             valueB = Number(valueB);
             // Ordenación numérica
@@ -142,13 +122,9 @@ async function loadAndDisplayData() {
     loadingMessage.style.display = 'block';
     cryptoTable.style.display = 'none';
 
-    // Primero, obtenemos y almacenamos los datos de las criptomonedas
+    // Obtenemos y almacenamos los datos de las criptomonedas
     const cryptoData = await getCryptoData();
     console.log('cryptoData después de getCryptoData:', cryptoData);
-
-    // Luego, obtenemos las monedas en tendencia
-    const trendingCoins = await getTrendingCoins();
-    console.log('trendingCoins después de getTrendingCoins:', trendingCoins);
 
     // Filtramos y ordenamos los datos
     let filteredData = cryptoData;
@@ -163,13 +139,13 @@ async function loadAndDisplayData() {
     console.log('sortedData después de sortData:', sortedData);
 
     // Mostramos los datos en la tabla
-    displayCryptoData(sortedData, trendingCoins);
+    displayCryptoData(sortedData);
 
   } catch (error) {
     console.error('Error al cargar los datos:', error);
     let row = cryptoTableBody.insertRow();
     let errorCell = row.insertCell();
-    errorCell.colSpan = 7;
+    errorCell.colSpan = 6;
     errorCell.textContent = "Error al cargar los datos. Por favor, inténtalo de nuevo más tarde.";
   } finally {
     loadingMessage.style.display = 'none';
