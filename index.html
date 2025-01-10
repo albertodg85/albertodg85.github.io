@@ -21,19 +21,19 @@
 
                 <label for="sort">Ordenar por: </label>
                 <select id="sort">
-                    <option value="market_cap_desc">Capitalización (Mayor a Menor)</option>
-                    <option value="market_cap_asc">Capitalización (Menor a Mayor)</option>
-                    <option value="current_price_desc">Precio (Mayor a Menor)</option>
-                    <option value="current_price_asc">Precio (Menor a Mayor)</option>
+                    <option value="marketCapUsd_desc">Capitalización (Mayor a Menor)</option>
+                    <option value="marketCapUsd_asc">Capitalización (Menor a Mayor)</option>
+                    <option value="priceUsd_desc">Precio (Mayor a Menor)</option>
+                    <option value="priceUsd_asc">Precio (Menor a Mayor)</option>
                     <option value="name_asc">Nombre (A-Z)</option>
                     <option value="name_desc">Nombre (Z-A)</option>
-                    <option value="volume_desc">Volumen 24h (Mayor a Menor)</option>
-                    <option value="volume_asc">Volumen 24h (Menor a Mayor)</option>
+                    <option value="volumeUsd24Hr_desc">Volumen 24h (Mayor a Menor)</option>
+                    <option value="volumeUsd24Hr_asc">Volumen 24h (Menor a Mayor)</option>
                 </select>
             </div>
 
             <div id="loading">Cargando datos...</div>
-            <table id="cryptoTable" style="display: none;">
+            <table id="cryptoTable" >
                 <thead>
                     <tr>
                         <th>Símbolo</th>
@@ -42,7 +42,6 @@
                         <th>Capitalización de Mercado (USD)</th>
                         <th>Cambio en 24h (%)</th>
                         <th>Volumen en 24h (USD)</th>
-                        <th>Tendencia</th>
                     </tr>
                 </thead>
                 <tbody>
