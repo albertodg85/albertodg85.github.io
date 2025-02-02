@@ -12,76 +12,82 @@ function fetchCoins(page) {
       }
     })
     .then(response => {
-      const coins = response.data;
+      console.log("Respuesta de la API:", response.data); // Imprime la respuesta de la API en la consola
+      const coins = response.data; 
 
-      coins.forEach(coin => {
-        const coinId = coin.id; // Obtener el ID de la moneda en Coinpaprika
+      // Verifica si 'coins' es un array antes de usar forEach
+      if (Array.isArray(coins)) {
+        coins.forEach(coin => {
+          const coinId = coin.id; // Obtener el ID de la moneda en Coinpaprika
 
-        // Obtener el historial de precios del último mes
-        const today = new Date();
-        const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()); // Fecha de inicio: un mes atrás
-        const toDate = today;
-        const fromTimestamp = Math.floor(fromDate.getTime() / 1000);
-        const toTimestamp = Math.floor(toDate.getTime() / 1000);
+          // Obtener el historial de precios del último mes
+          const today = new Date();
+          const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()); // Fecha de inicio: un mes atrás
+          const toDate = today;
+          const fromTimestamp = Math.floor(fromDate.getTime() / 1000);
+          const toTimestamp = Math.floor(toDate.getTime() / 1000);
 
-        axios.get(`https://api.coinpaprika.com/v1/coins/${coinId}/ohlcv/historical`, {
-            params: {
-              'start': fromTimestamp,
-              'end': toTimestamp
-            }
-          })
-          .then(response => {
-            const history = response.data;
+          axios.get(`https://api.coinpaprika.com/v1/coins/${coinId}/ohlcv/historical`, {
+              params: {
+                'start': fromTimestamp,
+                'end': toTimestamp
+              }
+            })
+            .then(response => {
+              const history = response.data;
 
-            // Crear un elemento para cada criptomoneda
-            const cryptoItem = document.createElement('div');
-            cryptoItem.classList.add('crypto-item');
+              // Crear un elemento para cada criptomoneda
+              const cryptoItem = document.createElement('div');
+              cryptoItem.classList.add('crypto-item');
 
-            // Mostrar el logo (Coinpaprika no proporciona logos directamente, 
-            // así que usaremos una imagen por defecto o buscar otra forma de obtenerla)
-            const logo = document.createElement('img');
-            logo.src = 'ruta/a/imagen/por/defecto.png'; // Reemplaza con la ruta de tu imagen
-            logo.alt = `${coin.name} logo`;
-            cryptoItem.appendChild(logo);
+              // Mostrar el logo (Coinpaprika no proporciona logos directamente, 
+              // así que usaremos una imagen por defecto o buscar otra forma de obtenerla)
+              const logo = document.createElement('img');
+              logo.src = 'ruta/a/imagen/por/defecto.png'; // Reemplaza con la ruta de tu imagen
+              logo.alt = `${coin.name} logo`;
+              cryptoItem.appendChild(logo);
 
-            // Mostrar el nombre
-            const name = document.createElement('h2');
-            name.textContent = coin.name;
-            cryptoItem.appendChild(name);
+              // Mostrar el nombre
+              const name = document.createElement('h2');
+              name.textContent = coin.name;
+              cryptoItem.appendChild(name);
 
-            // Mostrar el símbolo
-            const symbol = document.createElement('p');
-            symbol.textContent = coin.symbol;
-            cryptoItem.appendChild(symbol);
+              // Mostrar el símbolo
+              const symbol = document.createElement('p');
+              symbol.textContent = coin.symbol;
+              cryptoItem.appendChild(symbol);
 
-            // Mostrar el precio actual (Coinpaprika no proporciona el precio actual directamente, 
-            // tendrías que obtenerlo de otro endpoint o calcularlo a partir del historial)
-            // ...
+              // Mostrar el precio actual (Coinpaprika no proporciona el precio actual directamente, 
+              // tendrías que obtenerlo de otro endpoint o calcularlo a partir del historial)
+              // ...
 
-            // Mostrar el cambio porcentual en las últimas 24 horas (no disponible directamente, 
-            //  tendrías que calcularlo con los datos del historial)
-            // ...
+              // Mostrar el cambio porcentual en las últimas 24 horas (no disponible directamente, 
+              //  tendrías que calcularlo con los datos del historial)
+              // ...
 
-            // Mostrar la información del suministro (Coinpaprika proporciona esta información en otro endpoint)
-            // ...
+              // Mostrar la información del suministro (Coinpaprika proporciona esta información en otro endpoint)
+              // ...
 
-            // Crear la gráfica usando Chart.js
-            const canvas = document.createElement('canvas');
-            canvas.classList.add('crypto-chart');
-            cryptoItem.appendChild(canvas);
+              // Crear la gráfica usando Chart.js
+              const canvas = document.createElement('canvas');
+              canvas.classList.add('crypto-chart');
+              cryptoItem.appendChild(canvas);
 
-            // Adaptar los datos del historial para Chart.js
-            const prices = history.map(day => day.close); 
-            const labels = history.map(day => new Date(day.time_open).toLocaleDateString()); 
+              // Adaptar los datos del historial para Chart.js
+              const prices = history.map(day => day.close); 
+              const labels = history.map(day => new Date(day.time_open).toLocaleDateString()); 
 
-            // ... (código para crear la gráfica similar al anterior)
+              // ... (código para crear la gráfica similar al anterior)
 
-            cryptoList.appendChild(cryptoItem);
-          })
-          .catch(error => {
-            console.error("Error al obtener el historial de precios:", error);
-          });
-      });
+              cryptoList.appendChild(cryptoItem);
+            })
+            .catch(error => {
+              console.error("Error al obtener el historial de precios:", error);
+            });
+        });
+      } else {
+        console.error("La respuesta de la API no es un array:", coins);
+      }
 
       // Verificar si hay más páginas (Coinpaprika no proporciona el número total de páginas, 
       //  tendrías que obtener todas las monedas y calcularlo o usar una aproximación)
