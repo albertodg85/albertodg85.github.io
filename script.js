@@ -1,134 +1,38 @@
-const apiUrl = 'https://api.coincap.io/v2/assets';
-const cryptoTable = document.getElementById('cryptoTable');
-const cryptoTableBody = cryptoTable.getElementsByTagName('tbody');
-const loadingMessage = document.getElementById('loading');
-const filterInput = document.getElementById('filter');
-const sortSelect = document.getElementById('sort');
+const tableBody = document.getElementById('crypto-table').getElementsByTagName('tbody');
 
-let cryptoDataCache =;
+fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd')
+  .then(response => response.json())
+  .then(data => {
+        data.forEach(coin => {
+            const row = tableBody.insertRow();
+            row.insertCell().textContent = coin.name;
+            row.insertCell().textContent = coin.current_price;
+            row.insertCell().textContent = coin.price_change_percentage_24h + '%';
+            row.insertCell().textContent = coin.high_24h;
+            row.insertCell().textContent = coin.low_24h;
+            row.insertCell().textContent = coin.total_volume;
+            row.insertCell().textContent = coin.market_cap;
+            row.insertCell().textContent = coin.market_cap_rank;
+            row.insertCell().textContent = coin.circulating_supply;
+            row.insertCell().textContent = coin.max_supply? coin.max_supply: '-';
 
-async function getCryptoData() {
-    try {
-        const response = await fetch(apiUrl);
-        const dataWrapper = await response.json();
-        const data = dataWrapper.data;
-        cryptoDataCache = data;
-        return data;
-    } catch (error) {
-        console.error('Error al obtener datos:', error);
-        return;
-    }
-}
+            // Calcular el porcentaje de suministro no utilizado
+            let porcentajeNoUtilizado = 0;
+            if (coin.circulating_supply && coin.max_supply) {
+                porcentajeNoUtilizado = ((coin.max_supply - coin.circulating_supply) / coin.max_supply) * 100;
+            }
+            row.insertCell().textContent = porcentajeNoUtilizado.toFixed(2) + '%';
 
-function displayCryptoData(data) {
-    cryptoTableBody.innerHTML = '';
+            // Mostrar la tendencia actual con flechas
+            const trendCell = row.insertCell();
+            if (coin.price_change_percentage_24h > 0) {
+                trendCell.innerHTML = '<span style="color:green;">&#x25B2;</span>'; // Flecha verde hacia arriba
+            } else {
+                trendCell.innerHTML = '<span style="color:red;">&#x25BC;</span>'; // Flecha roja hacia abajo
+            }
 
-    data.forEach(coin => {
-        const row = cryptoTableBody.insertRow();
-        const symbolCell = row.insertCell();
-        const nameCell = row.insertCell();
-        const priceCell = row.insertCell();
-        const marketCapCell = row.insertCell();
-        const circulatingSupplyCell = row.insertCell();
-        const maxSupplyCell = row.insertCell();
-        const remainingSupplyCell = row.insertCell();
-        const marketCapRankCell = row.insertCell();
-        const buyPercentageCell = row.insertCell();
-        const sellPercentageCell = row.insertCell();
-        const change24hCell = row.insertCell();
-        const volume24hCell = row.insertCell();
-
-        symbolCell.textContent = coin.symbol;
-        nameCell.textContent = coin.name;
-        priceCell.textContent = Number(coin.priceUsd).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-        marketCapCell.textContent = Number(coin.marketCapUsd).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-
-        // Datos adicionales (manejar valores nulos o indefinidos)
-        circulatingSupplyCell.textContent = coin.circulatingSupply? Number(coin.circulatingSupply).toLocaleString(): '-';
-        maxSupplyCell.textContent = coin.maxSupply? Number(coin.maxSupply).toLocaleString(): '-';
-        remainingSupplyCell.textContent = (coin.maxSupply && coin.circulatingSupply)? Number(coin.maxSupply - coin.circulatingSupply).toLocaleString(): '-';
-        marketCapRankCell.textContent = coin.rank? Number(coin.rank): '-';
-        buyPercentageCell.textContent = '-';
-        sellPercentageCell.textContent = '-';
-        change24hCell.textContent = Number(coin.changePercent24Hr).toFixed(2) + '%';
-        volume24hCell.textContent = Number(coin.volumeUsd24Hr).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-
-        // Estilos
-        if (Number(coin.changePercent24Hr) > 0) {
-            change24hCell.style.color = 'green';
-        } else if (Number(coin.changePercent24Hr) < 0) {
-            change24hCell.style.color = 'red';
-        }
+            // Obtener los días con valores máximos y mínimos de los últimos 12 meses
+            // (requiere llamadas adicionales a la API y lógica para procesar los datos históricos)
+            //...
+        });
     });
-}
-
-function filterData(data, searchTerm) {
-    const result = data.filter(coin => {
-        const name = coin.name.toLowerCase();
-        const symbol = coin.symbol.toLowerCase();
-        return name.includes(searchTerm) || symbol.includes(searchTerm);
-    });
-    return result;
-}
-
-// Función corregida para la ordenación
-function sortData(data, sortKey) {
-    const [field, order] = sortKey.split('_');
-
-    const result = data.sort((a, b) => {
-        let valueA = a[field];
-        let valueB = b[field];
-
-        if (valueA === null || valueA === undefined) valueA = -Infinity;
-        if (valueB === null || valueB === undefined) valueB = -Infinity;
-
-        // Corrección: Convertir a minúsculas solo si son cadenas
-        if (typeof valueA === 'string' && typeof valueB === 'string') {
-            valueA = valueA.toLowerCase();
-            valueB = valueB.toLowerCase();
-            return order === 'asc'? valueA.localeCompare(valueB): valueB.localeCompare(valueA);
-        } else {
-            // Si no son cadenas, convertir a número para la ordenación
-            valueA = Number(valueA);
-            valueB = Number(valueB);
-            return order === 'asc'? valueA - valueB: valueB - valueA;
-        }
-    });
-    return result;
-}
-
-async function loadAndDisplayData() {
-    try {
-        loadingMessage.style.display = 'block';
-        cryptoTable.style.display = 'none';
-
-        const cryptoData = await getCryptoData();
-
-        let filteredData = cryptoData;
-        const searchTerm = filterInput.value.toLowerCase();
-        if (searchTerm) {
-            filteredData = filterData(filteredData, searchTerm);
-        }
-
-        const sortKey = sortSelect.value;
-        const sortedData = sortData(filteredData, sortKey);
-
-        displayCryptoData(sortedData);
-
-    } catch (error) {
-        console.error('Error al cargar datos:', error);
-    } finally {
-        loadingMessage.style.display = 'none';
-        cryptoTable.style.display = 'table';
-    }
-}
-
-filterInput.addEventListener('input', () => {
-    loadAndDisplayData();
-});
-
-sortSelect.addEventListener('change', () => {
-    loadAndDisplayData();
-});
-
-document.addEventListener('DOMContentLoaded', loadAndDisplayData);
