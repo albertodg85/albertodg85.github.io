@@ -41,11 +41,20 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
       canvas.classList.add('crypto-chart');
       cryptoItem.appendChild(canvas);
 
+      // Generar etiquetas para el eje X (fechas de los últimos 7 días)
+      const labels = [];
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        labels.push(date.toLocaleDateString());
+      }
+
       const chartData = {
-        labels: [], // Eje X (se puede dejar vacío o rellenar con fechas)
+        labels: labels, // Usar las fechas generadas como etiquetas
         datasets: [{
           label: 'Precio',
-          data: coin.sparkline_in_7d.price, // Datos del precio de los últimos 7 días
+          data: coin.sparkline_in_7d.price,
           borderColor: 'blue',
           fill: false
         }]
