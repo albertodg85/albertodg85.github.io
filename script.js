@@ -9,7 +9,7 @@ function fetchCoins(page) {
       params: {
         'limit': coinsPerPage,
         'page': page,
-        'quotes': 'USD', 
+        'quotes': 'USD',
         'additional_fields': 'market_cap'
       }
     })
@@ -70,14 +70,21 @@ function fetchCoins(page) {
 
               // Mostrar el cambio porcentual en las últimas 24 horas (calcular a partir del historial)
               const priceChange = document.createElement('p');
-              // ... (lógica para calcular el cambio porcentual)
+              if (history.length > 1) {
+                const yesterdayPrice = history[history.length - 2].close;
+                const priceChangePercent = ((coin.quotes.USD.price - yesterdayPrice) / yesterdayPrice) * 100;
+                priceChange.textContent = `Cambio (24h): ${priceChangePercent.toFixed(2)}%`;
+                priceChange.style.color = priceChangePercent >= 0 ? 'green' : 'red';
+              } else {
+                priceChange.textContent = 'Cambio (24h): No disponible';
+              }
               cryptoItem.appendChild(priceChange);
 
               // Mostrar la información del suministro
               const supplyInfo = document.createElement('p');
               supplyInfo.innerHTML = `
-                Capitalización de mercado: ${coin.market_cap.toLocaleString()}
-              `;
+                      Capitalización de mercado: ${coin.market_cap_usd.toLocaleString()}
+                    `;
               cryptoItem.appendChild(supplyInfo);
 
               // Crear la gráfica usando Chart.js
@@ -86,10 +93,38 @@ function fetchCoins(page) {
               cryptoItem.appendChild(canvas);
 
               // Adaptar los datos del historial para Chart.js
-              const prices = history.map(day => day.close); 
-              const labels = history.map(day => new Date(day.time_open).toLocaleDateString()); 
+              const prices = history.map(day => day.close);
+              const labels = history.map(day => new Date(day.time_open).toLocaleDateString());
 
-              // ... (código para crear la gráfica similar al anterior)
+              const chartData = {
+                labels: labels,
+                datasets: [{
+                  label: 'Precio',
+                  data: prices,
+                  borderColor: 'blue',
+                  fill: false,
+                  tension: 0.1
+                }]
+              };
+
+              new Chart(canvas, {
+                type: 'line',
+                data: chartData,
+                options: {
+                  elements: {
+                    point: {
+                      radius: 0 // Eliminar los puntos de la gráfica
+                    }
+                  },
+                  scales: {
+                    x: {
+                      ticks: {
+                        maxTicksLimit: 10 // Limitar el número de etiquetas en el eje X
+                      }
+                    }
+                  }
+                }
+              });
 
               cryptoList.appendChild(cryptoItem);
             });
@@ -103,7 +138,10 @@ function fetchCoins(page) {
 
       // Verificar si hay más páginas (Coinpaprika no proporciona el número total de páginas, 
       //  tendrías que obtener todas las monedas y calcularlo o usar una aproximación)
-      // ...
+      if (coins.length === coinsPerPage) {
+        currentPage++;
+        fetchCoins(currentPage);
+      }
     })
     .catch(error => {
       console.error("Error al obtener la lista de criptomonedas:", error);
