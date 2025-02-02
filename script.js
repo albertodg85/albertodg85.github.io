@@ -48,6 +48,7 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
           // Calcular el suministro que falta y el porcentaje que queda por consumir
           const circulatingSupply = coin.circulating_supply;
           const totalSupply = coin.total_supply;
+          const maxSupply = coin.max_supply; // Obtener el suministro máximo
           const remainingSupply = totalSupply - circulatingSupply;
           const remainingPercentage = (remainingSupply / totalSupply) * 100;
 
@@ -55,6 +56,7 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
           const supplyInfo = document.createElement('p');
           supplyInfo.innerHTML = `
             Suministro en circulación: ${circulatingSupply.toLocaleString()}<br>
+            Suministro máximo: ${maxSupply ? maxSupply.toLocaleString() : '∞'}<br> 
             Suministro restante: ${remainingSupply.toLocaleString()}<br>
             Porcentaje restante: ${remainingPercentage.toFixed(2)}%
           `;
