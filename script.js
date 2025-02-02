@@ -100,9 +100,22 @@ function fetchCoins(page) {
               type: 'line',
               data: chartData,
               options: {
+                elements: {
+                  point: {
+                    radius: 0 // Eliminar los puntos de la gráfica
+                  }
+                },
+                scales: {
+                  x: {
+                    ticks: {
+                      maxTicksLimit: 10 // Limitar el número de etiquetas en el eje X
+                    }
+                  }
+                },
                 plugins: {
                   annotation: {
                     annotations: {
+                      // Marcar solo el máximo en verde
                       max: {
                         type: 'point',
                         xValue: maxDate,
@@ -115,6 +128,7 @@ function fetchCoins(page) {
                           position: 'top'
                         }
                       },
+                      // Marcar solo el mínimo en rojo
                       min: {
                         type: 'point',
                         xValue: minDate,
