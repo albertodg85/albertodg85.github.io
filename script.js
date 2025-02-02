@@ -10,10 +10,10 @@ function fetchCoins(page) {
         'limit': coinsPerPage,
         'page': page,
         'quotes': 'USD',
-        'additional_fields': 'market_cap'
+        'additional_fields': 'market_cap_usd' // Corrección: usar market_cap_usd
       }
     })
-    .then(response => {
+  .then(response => {
       const coins = response.data;
 
       // Verifica si 'coins' es un array antes de usar forEach
@@ -35,7 +35,7 @@ function fetchCoins(page) {
               'interval': '1d' // Obtener datos diarios
             }
           })
-          .then(response => {
+        .then(response => {
             const historyData = response.data;
 
             coins.forEach(coin => {
@@ -74,7 +74,7 @@ function fetchCoins(page) {
                 const yesterdayPrice = history[history.length - 2].close;
                 const priceChangePercent = ((coin.quotes.USD.price - yesterdayPrice) / yesterdayPrice) * 100;
                 priceChange.textContent = `Cambio (24h): ${priceChangePercent.toFixed(2)}%`;
-                priceChange.style.color = priceChangePercent >= 0 ? 'green' : 'red';
+                priceChange.style.color = priceChangePercent >= 0? 'green': 'red';
               } else {
                 priceChange.textContent = 'Cambio (24h): No disponible';
               }
@@ -83,8 +83,8 @@ function fetchCoins(page) {
               // Mostrar la información del suministro
               const supplyInfo = document.createElement('p');
               supplyInfo.innerHTML = `
-                      Capitalización de mercado: ${coin.market_cap_usd.toLocaleString()}
-                    `;
+                Capitalización de mercado: ${coin.market_cap_usd.toLocaleString()}
+              `;
               cryptoItem.appendChild(supplyInfo);
 
               // Crear la gráfica usando Chart.js
@@ -129,7 +129,7 @@ function fetchCoins(page) {
               cryptoList.appendChild(cryptoItem);
             });
           })
-          .catch(error => {
+        .catch(error => {
             console.error("Error al obtener el historial de precios:", error);
           });
       } else {
@@ -143,18 +143,18 @@ function fetchCoins(page) {
         fetchCoins(currentPage);
       }
     })
-    .catch(error => {
+  .catch(error => {
       console.error("Error al obtener la lista de criptomonedas:", error);
     });
 }
 
 // Obtener el número total de criptomonedas desde la API de Coinpaprika
 axios.get('https://api.coinpaprika.com/v1/coins') // Obtener todas las monedas para calcular totalPages
-  .then(response => {
+.then(response => {
     const totalCoins = response.data.length;
     totalPages = Math.ceil(totalCoins / coinsPerPage);
     fetchCoins(currentPage);
   })
-  .catch(error => {
+.catch(error => {
     console.error("Error al obtener la lista de todas las criptomonedas:", error);
   });
