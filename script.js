@@ -47,23 +47,32 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
       for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(today.getDate() - i);
-        labels.push(date.toLocaleDateString());
+        // Formatear la fecha como 'YYYY-MM-DD'
+        labels.push(date.toISOString().slice(0, 10));
       }
 
-      const chartData = {
-        labels: labels, // Usar las fechas generadas como etiquetas
-        datasets: [{
-          label: 'Precio',
-          data: coin.sparkline_in_7d.price,
-          borderColor: 'blue',
-          fill: false
-        }]
-      };
+      // Verificar si hay datos de precios
+      if (coin.sparkline_in_7d.price && coin.sparkline_in_7d.price.length > 0) {
+        const chartData = {
+          labels: labels, // Usar las fechas generadas como etiquetas
+          datasets: [{
+            label: 'Precio',
+            data: coin.sparkline_in_7d.price,
+            borderColor: 'blue',
+            fill: false
+          }]
+        };
 
-      new Chart(canvas, {
-        type: 'line',
-        data: chartData
-      });
+        new Chart(canvas, {
+          type: 'line',
+          data: chartData
+        });
+      } else {
+        // Mostrar un mensaje si no hay datos de precios
+        const noDataMessage = document.createElement('p');
+        noDataMessage.textContent = "No hay datos de precios disponibles.";
+        cryptoItem.appendChild(noDataMessage);
+      }
 
       cryptoList.appendChild(cryptoItem);
     });
