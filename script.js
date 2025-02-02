@@ -1,40 +1,46 @@
 const cryptoList = document.querySelector('.crypto-list');
-const coinsPerPage = 100;  // Coinpaprika permite hasta 5000 resultados, pero usaremos 100 para evitar problemas
+const coinsPerPage = 50; // Reducimos el número de monedas por página para optimizar
 let currentPage = 1;
 let totalPages = 1; // Inicializamos con un valor por defecto
 
 function fetchCoins(page) {
-  // Obtener la lista de criptomonedas desde la API de Coinpaprika
+  // Obtener la lista de criptomonedas, el precio actual y la información del suministro
   axios.get(`https://api.coinpaprika.com/v1/coins`, {
       params: {
         'limit': coinsPerPage,
-        'page': page
+        'page': page,
+        'quotes': 'USD', 
+        'additional_fields': 'market_cap'
       }
     })
     .then(response => {
-      console.log("Respuesta de la API:", response.data); // Imprime la respuesta de la API en la consola
-      const coins = response.data; 
+      const coins = response.data;
 
       // Verifica si 'coins' es un array antes de usar forEach
       if (Array.isArray(coins)) {
-        coins.forEach(coin => {
-          const coinId = coin.id; // Obtener el ID de la moneda en Coinpaprika
 
-          // Obtener el historial de precios del último mes
-          const today = new Date();
-          const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()); // Fecha de inicio: un mes atrás
-          const toDate = today;
-          const fromTimestamp = Math.floor(fromDate.getTime() / 1000);
-          const toTimestamp = Math.floor(toDate.getTime() / 1000);
+        // Obtener el historial de precios de todas las monedas en una sola petición
+        const coinIds = coins.map(coin => coin.id).join(',');
+        const today = new Date();
+        const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()); // Fecha de inicio: un mes atrás
+        const toDate = today;
+        const fromTimestamp = Math.floor(fromDate.getTime() / 1000);
+        const toTimestamp = Math.floor(toDate.getTime() / 1000);
 
-          axios.get(`https://api.coinpaprika.com/v1/coins/${coinId}/ohlcv/historical`, {
-              params: {
-                'start': fromTimestamp,
-                'end': toTimestamp
-              }
-            })
-            .then(response => {
-              const history = response.data;
+        axios.get(`https://api.coinpaprika.com/v1/tickers/historical`, {
+            params: {
+              'coins': coinIds,
+              'start': fromTimestamp,
+              'end': toTimestamp,
+              'interval': '1d' // Obtener datos diarios
+            }
+          })
+          .then(response => {
+            const historyData = response.data;
+
+            coins.forEach(coin => {
+              const coinId = coin.id;
+              const history = historyData.filter(item => item.id === coinId); // Filtrar el historial para la moneda actual
 
               // Crear un elemento para cada criptomoneda
               const cryptoItem = document.createElement('div');
@@ -57,16 +63,22 @@ function fetchCoins(page) {
               symbol.textContent = coin.symbol;
               cryptoItem.appendChild(symbol);
 
-              // Mostrar el precio actual (Coinpaprika no proporciona el precio actual directamente, 
-              // tendrías que obtenerlo de otro endpoint o calcularlo a partir del historial)
-              // ...
+              // Mostrar el precio actual
+              const price = document.createElement('p');
+              price.textContent = `Precio: $${coin.quotes.USD.price.toFixed(2)}`;
+              cryptoItem.appendChild(price);
 
-              // Mostrar el cambio porcentual en las últimas 24 horas (no disponible directamente, 
-              //  tendrías que calcularlo con los datos del historial)
-              // ...
+              // Mostrar el cambio porcentual en las últimas 24 horas (calcular a partir del historial)
+              const priceChange = document.createElement('p');
+              // ... (lógica para calcular el cambio porcentual)
+              cryptoItem.appendChild(priceChange);
 
-              // Mostrar la información del suministro (Coinpaprika proporciona esta información en otro endpoint)
-              // ...
+              // Mostrar la información del suministro
+              const supplyInfo = document.createElement('p');
+              supplyInfo.innerHTML = `
+                Capitalización de mercado: ${coin.market_cap.toLocaleString()}
+              `;
+              cryptoItem.appendChild(supplyInfo);
 
               // Crear la gráfica usando Chart.js
               const canvas = document.createElement('canvas');
@@ -80,11 +92,11 @@ function fetchCoins(page) {
               // ... (código para crear la gráfica similar al anterior)
 
               cryptoList.appendChild(cryptoItem);
-            })
-            .catch(error => {
-              console.error("Error al obtener el historial de precios:", error);
             });
-        });
+          })
+          .catch(error => {
+            console.error("Error al obtener el historial de precios:", error);
+          });
       } else {
         console.error("La respuesta de la API no es un array:", coins);
       }
