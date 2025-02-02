@@ -142,8 +142,10 @@ function fetchCoins(page) {
 
       // Verificar si hay más páginas
       if (page < totalPages) {
-        currentPage++;
-        fetchCoins(currentPage);
+        setTimeout(() => {
+          currentPage++;
+          fetchCoins(currentPage);
+        }, 1000); // Esperar 1 segundo antes de la siguiente petición
       }
     })
     .catch(error => {
