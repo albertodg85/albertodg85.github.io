@@ -11,7 +11,7 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
 
       // Mostrar el logo
       const logo = document.createElement('img');
-      logo.src = coin.image; // Usar la propiedad 'image' del objeto 'coin'
+      logo.src = coin.image;
       logo.alt = `${coin.name} logo`;
       cryptoItem.appendChild(logo);
 
