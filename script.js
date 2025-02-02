@@ -1,4 +1,4 @@
-fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false') // No necesitamos sparkline aquí
+fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false')
   .then(response => response.json())
   .then(coins => {
     const cryptoList = document.querySelector('.crypto-list');
@@ -45,13 +45,28 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
           priceChange.style.color = coin.price_change_percentage_24h >= 0 ? 'green' : 'red';
           cryptoItem.appendChild(priceChange);
 
+          // Calcular el suministro que falta y el porcentaje que queda por consumir
+          const circulatingSupply = coin.circulating_supply;
+          const totalSupply = coin.total_supply;
+          const remainingSupply = totalSupply - circulatingSupply;
+          const remainingPercentage = (remainingSupply / totalSupply) * 100;
+
+          // Mostrar la información del suministro
+          const supplyInfo = document.createElement('p');
+          supplyInfo.innerHTML = `
+            Suministro en circulación: ${circulatingSupply.toLocaleString()}<br>
+            Suministro restante: ${remainingSupply.toLocaleString()}<br>
+            Porcentaje restante: ${remainingPercentage.toFixed(2)}%
+          `;
+          cryptoItem.appendChild(supplyInfo);
+
           // Crear la gráfica usando Chart.js
           const canvas = document.createElement('canvas');
           canvas.classList.add('crypto-chart');
           cryptoItem.appendChild(canvas);
 
           const prices = history.prices.map(price => price[1]); // Obtener los precios del historial
-          
+
           // Calcular máximo y mínimo
           const maxPrice = Math.max(...prices);
           const minPrice = Math.min(...prices);
