@@ -4,7 +4,7 @@ body {
 
 .crypto-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Ajusta el ancho de las tarjetas según el espacio disponible */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
 }
 
@@ -22,7 +22,6 @@ body {
     margin-bottom: 10px;
 }
 
-/* Estilos para las gráficas (ajusta según la librería que uses) */
 .crypto-chart {
     width: 100%;
     height: 200px;
