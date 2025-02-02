@@ -47,14 +47,9 @@ function displayCryptoData(data) {
         circulatingSupplyCell.textContent = coin.circulatingSupply? Number(coin.circulatingSupply).toLocaleString(): '-';
         maxSupplyCell.textContent = coin.maxSupply? Number(coin.maxSupply).toLocaleString(): '-';
         remainingSupplyCell.textContent = (coin.maxSupply && coin.circulatingSupply)? Number(coin.maxSupply - coin.circulatingSupply).toLocaleString(): '-';
-
-        // Obtener el ranking de la propiedad 'rank'
         marketCapRankCell.textContent = coin.rank? Number(coin.rank): '-';
-
         buyPercentageCell.textContent = '-';
         sellPercentageCell.textContent = '-';
-
-        // Obtener el cambio en 24h de la propiedad 'changePercent24Hr'
         change24hCell.textContent = Number(coin.changePercent24Hr).toFixed(2) + '%';
         volume24hCell.textContent = Number(coin.volumeUsd24Hr).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
@@ -87,7 +82,7 @@ function sortData(data, sortKey) {
         if (valueA === null || valueA === undefined) valueA = -Infinity;
         if (valueB === null || valueB === undefined) valueB = -Infinity;
 
-        // Manejar la ordenación de cadenas sin eliminar caracteres
+        // Corrección: Convertir a minúsculas solo si son cadenas
         if (typeof valueA === 'string' && typeof valueB === 'string') {
             valueA = valueA.toLowerCase();
             valueB = valueB.toLowerCase();
