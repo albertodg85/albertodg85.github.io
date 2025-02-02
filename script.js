@@ -1,11 +1,11 @@
 const apiUrl = 'https://api.coincap.io/v2/assets';
 const cryptoTable = document.getElementById('cryptoTable');
-const cryptoTableBody = cryptoTable.getElementsByTagName('tbody')[0];
+const cryptoTableBody = cryptoTable.getElementsByTagName('tbody');
 const loadingMessage = document.getElementById('loading');
 const filterInput = document.getElementById('filter');
 const sortSelect = document.getElementById('sort');
 
-let cryptoDataCache = [];
+let cryptoDataCache =;
 
 async function getCryptoData() {
     try {
@@ -16,7 +16,7 @@ async function getCryptoData() {
         return data;
     } catch (error) {
         console.error('Error al obtener datos:', error);
-        return [];
+        return;
     }
 }
 
@@ -32,9 +32,9 @@ function displayCryptoData(data) {
         const circulatingSupplyCell = row.insertCell();
         const maxSupplyCell = row.insertCell();
         const remainingSupplyCell = row.insertCell();
-        const marketCapRankCell = row.insertCell();  // Nueva celda para el ranking
-        const buyPercentageCell = row.insertCell(); // Nueva celda para % de compra
-        const sellPercentageCell = row.insertCell();// Nueva celda para % de venta
+        const marketCapRankCell = row.insertCell();
+        const buyPercentageCell = row.insertCell();
+        const sellPercentageCell = row.insertCell();
         const change24hCell = row.insertCell();
         const volume24hCell = row.insertCell();
 
@@ -44,10 +44,10 @@ function displayCryptoData(data) {
         marketCapCell.textContent = Number(coin.marketCapUsd).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
         // Datos adicionales (manejar valores nulos o indefinidos)
-        circulatingSupplyCell.textContent = coin.circulatingSupply ? Number(coin.circulatingSupply).toLocaleString() : '-'; // Formatear número
-        maxSupplyCell.textContent = coin.maxSupply ? Number(coin.maxSupply).toLocaleString() : '-'; // Formatear número
-        remainingSupplyCell.textContent = (coin.maxSupply && coin.circulatingSupply) ? Number(coin.maxSupply - coin.circulatingSupply).toLocaleString() : '-'; // Formatear número
-        marketCapRankCell.textContent = coin.marketCapRank || '-'; // Mostrar o guión si no existe
+        circulatingSupplyCell.textContent = coin.circulatingSupply? Number(coin.circulatingSupply).toLocaleString(): '-';
+        maxSupplyCell.textContent = coin.maxSupply? Number(coin.maxSupply).toLocaleString(): '-';
+        remainingSupplyCell.textContent = (coin.maxSupply && coin.circulatingSupply)? Number(coin.maxSupply - coin.circulatingSupply).toLocaleString(): '-';
+        marketCapRankCell.textContent = coin.rank? Number(coin.rank): '-';
         buyPercentageCell.textContent = '-'; // Placeholder (necesitas datos reales de compra/venta)
         sellPercentageCell.textContent = '-'; // Placeholder
 
@@ -63,9 +63,51 @@ function displayCryptoData(data) {
     });
 }
 
+function filterData(data, searchTerm) {
+    const result = data.filter(coin => {
+        const name = coin.name.toLowerCase();
+        const symbol = coin.symbol.toLowerCase();
+        return name.includes(searchTerm) || symbol.includes(searchTerm);
+    });
+    return result;
+}
 
+function sortData(data, sortKey) {
+    const [field, order] = sortKey.split('_');
 
-// ... (resto del código: filterData, sortData, loadAndDisplayData, listeners)
+    const result = data.sort((a, b) => {
+        let valueA = a[field];
+        let valueB = b[field];
+
+        if (valueA === null || valueA === undefined) valueA = -Infinity;
+        if (valueB === null || valueB === undefined) valueB = -Infinity;
+
+        if (field === 'name' || field === 'symbol') {
+            valueA = valueA.toLowerCase();
+            valueB = valueB.toLowerCase();
+            if (order === 'asc') {
+                return valueA.localeCompare(valueB);
+            } else {
+                return valueB.localeCompare(valueA);
+            }
+        } else if (field === 'priceUsd' || field === 'marketCapUsd' || field === 'volumeUsd24Hr') {
+            valueA = Number(valueA);
+            valueB = Number(valueB);
+            if (order === 'asc') {
+                return valueA - valueB;
+            } else {
+                return valueB - valueA;
+            }
+        } else {
+            if (order === 'asc') {
+                return String(valueA).localeCompare(String(valueB));
+            } else {
+                return String(valueB).localeCompare(String(valueA));
+            }
+        }
+    });
+    return result;
+}
 
 async function loadAndDisplayData() {
     try {
@@ -87,14 +129,18 @@ async function loadAndDisplayData() {
 
     } catch (error) {
         console.error('Error al cargar datos:', error);
-        // ... (manejo de errores)
     } finally {
         loadingMessage.style.display = 'none';
         cryptoTable.style.display = 'table';
     }
 }
 
+filterInput.addEventListener('input', () => {
+    loadAndDisplayData();
+});
 
-// ... (event listeners)
+sortSelect.addEventListener('change', () => {
+    loadAndDisplayData();
+});
 
 document.addEventListener('DOMContentLoaded', loadAndDisplayData);
