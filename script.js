@@ -4,9 +4,10 @@ let currentPage = 1;
 let totalPages = 1; // Inicializamos con un valor por defecto
 
 function fetchCoins(page) {
-  fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${coinsPerPage}&page=${page}&sparkline=false`)
-    .then(response => response.json())
-    .then(coins => {
+  axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${coinsPerPage}&page=${page}&sparkline=false`)
+    .then(response => {
+      const coins = response.data;
+
       coins.forEach(coin => {
         // Obtener el historial de precios del último mes
         const today = new Date();
@@ -15,9 +16,9 @@ function fetchCoins(page) {
         const fromTimestamp = Math.floor(fromDate.getTime() / 1000);
         const toTimestamp = Math.floor(toDate.getTime() / 1000);
 
-        fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart/range?vs_currency=usd&from=${fromTimestamp}&to=${toTimestamp}`)
-          .then(response => response.json())
-          .then(history => {
+        axios.get(`https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart/range?vs_currency=usd&from=${fromTimestamp}&to=${toTimestamp}`)
+          .then(response => {
+            const history = response.data;
             // Crear un elemento para cada criptomoneda
             const cryptoItem = document.createElement('div');
             cryptoItem.classList.add('crypto-item');
@@ -133,24 +134,30 @@ function fetchCoins(page) {
             });
 
             cryptoList.appendChild(cryptoItem);
+          })
+          .catch(error => {
+            console.error("Error al obtener el historial de precios:", error);
           });
       });
-    });
 
-    // Verificar si hay más páginas
-    if (page < totalPages) {
-      setTimeout(() => {
+      // Verificar si hay más páginas
+      if (page < totalPages) {
         currentPage++;
         fetchCoins(currentPage);
-      }, 1000); // Esperar 1 segundo antes de la siguiente petición
-    }
-  });
+      }
+    })
+    .catch(error => {
+      console.error("Error al obtener la lista de criptomonedas:", error);
+    });
 }
 
 // Obtener el número total de páginas desde la API
-fetch('https://api.coingecko.com/api/v3/coins/list')
-  .then(response => response.json())
-  .then(allCoins => {
+axios.get('https://api.coingecko.com/api/v3/coins/list')
+  .then(response => {
+    const allCoins = response.data;
     totalPages = Math.ceil(allCoins.length / coinsPerPage);
     fetchCoins(currentPage);
+  })
+  .catch(error => {
+    console.error("Error al obtener la lista de todas las criptomonedas:", error);
   });
