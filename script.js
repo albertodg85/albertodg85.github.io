@@ -135,13 +135,16 @@ function fetchCoins(page) {
             cryptoList.appendChild(cryptoItem);
           });
       });
+    });
 
-      // Verificar si hay más páginas
-      if (page < totalPages) {
+    // Verificar si hay más páginas
+    if (page < totalPages) {
+      setTimeout(() => {
         currentPage++;
         fetchCoins(currentPage);
-      }
-    });
+      }, 1000); // Esperar 1 segundo antes de la siguiente petición
+    }
+  });
 }
 
 // Obtener el número total de páginas desde la API
