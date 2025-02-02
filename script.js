@@ -72,6 +72,7 @@ function filterData(data, searchTerm) {
     return result;
 }
 
+// Función corregida para la ordenación
 function sortData(data, sortKey) {
     const [field, order] = sortKey.split('_');
 
@@ -85,25 +86,13 @@ function sortData(data, sortKey) {
         if (field === 'name' || field === 'symbol') {
             valueA = valueA.toLowerCase();
             valueB = valueB.toLowerCase();
-            if (order === 'asc') {
-                return valueA.localeCompare(valueB);
-            } else {
-                return valueB.localeCompare(valueA);
-            }
+            return order === 'asc'? valueA.localeCompare(valueB): valueB.localeCompare(valueA);
         } else if (field === 'priceUsd' || field === 'marketCapUsd' || field === 'volumeUsd24Hr') {
             valueA = Number(valueA);
             valueB = Number(valueB);
-            if (order === 'asc') {
-                return valueA - valueB;
-            } else {
-                return valueB - valueA;
-            }
+            return order === 'asc'? valueA - valueB: valueB - valueA;
         } else {
-            if (order === 'asc') {
-                return String(valueA).localeCompare(String(valueB));
-            } else {
-                return String(valueB).localeCompare(String(valueA));
-            }
+            return order === 'asc'? String(valueA).localeCompare(String(valueB)): String(valueB).localeCompare(String(valueA));
         }
     });
     return result;
