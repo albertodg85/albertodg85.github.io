@@ -20,6 +20,7 @@ AVAILABLE_SCRIPTS = {
     "hola": "scripts/hola.py",
     "procesar": "scripts/procesar_datos.py",
     "resumen": "scripts/generar_resumen.py"
+    "aleatorio": "scripts/aleatorio.py"
 }
 
 @app.post("/run")
