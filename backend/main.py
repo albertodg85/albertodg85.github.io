@@ -19,8 +19,8 @@ class ScriptRequest(BaseModel):
 AVAILABLE_SCRIPTS = {
     "hola": "scripts/hola.py",
     "procesar": "scripts/procesar_datos.py",
-    "resumen": "scripts/generar_resumen.py"
-    "aleatorio": "scripts/aleatorio.py"
+    "resumen": "scripts/generar_resumen.py",
+    "aleatorio": "scripts/aleatorio.py"  # ← añade esta línea
 }
 
 @app.post("/run")
