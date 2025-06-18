@@ -19,28 +19,23 @@ function fetchCoins(page) {
       // Verifica si 'coins' es un array antes de usar forEach
       if (Array.isArray(coins)) {
 
-        // Obtener el historial de precios de todas las monedas en una sola petición
-        const coinIds = coins.map(coin => coin.id).join(',');
+        // Obtener el historial de precios para cada moneda
         const today = new Date();
         const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()); // Fecha de inicio: un mes atrás
-        const toDate = today;
-        const fromTimestamp = Math.floor(fromDate.getTime() / 1000);
-        const toTimestamp = Math.floor(toDate.getTime() / 1000);
+        const startStr = fromDate.toISOString().split('T')[0];
+        const endStr = today.toISOString().split('T')[0];
 
-        axios.get(`https://api.coinpaprika.com/v1/tickers/historical`, {
+        const coinPromises = coins.map(coin =>
+          axios.get(`https://api.coinpaprika.com/v1/coins/${coin.id}/ohlcv/historical`, {
             params: {
-              'coins': coinIds,
-              'start': fromTimestamp,
-              'end': toTimestamp,
-              'interval': '1d' // Obtener datos diarios
+              start: startStr,
+              end: endStr
             }
-          })
-        .then(response => {
-            const historyData = response.data;
+          }).then(res => ({ coin, history: res.data }))
+        );
 
-            coins.forEach(coin => {
-              const coinId = coin.id;
-              const history = historyData.filter(item => item.id === coinId); // Filtrar el historial para la moneda actual
+        Promise.all(coinPromises).then(results => {
+            results.forEach(({ coin, history }) => {
 
               // Crear un elemento para cada criptomoneda
               const cryptoItem = document.createElement('div');
