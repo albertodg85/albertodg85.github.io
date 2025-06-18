@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 
-const scripts = ["hola", "procesar", "resumen"];
+const scripts = ["hola", "procesar", "resumen","aleatorio"];
 
 function App() {
   const [output, setOutput] = useState("");
