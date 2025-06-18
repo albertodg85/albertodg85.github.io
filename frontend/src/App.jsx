@@ -10,7 +10,7 @@ function App() {
   const runScript = async (name) => {
     setLoading(true);
     setOutput("");
-    const res = await fetch("http://localhost:8000/run", {
+    const res = await fetch("https://albertodg85-github-io-1.onrender.com/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ script_name: name }),
