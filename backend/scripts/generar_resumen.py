@@ -1,0 +1,1 @@
+print("Resumen generado")
